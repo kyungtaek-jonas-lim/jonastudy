@@ -1,0 +1,442 @@
+
+# =====================
+# CMD
+# =====================
+
+	# wc -l
+		: 라인 수 세기
+		
+		wc -l `find . -name '*.log'`
+		cat file.log | wc -l
+
+		
+	# grep -r {문자열} {파일명}
+		: 파일 내용 보기
+		
+		grep -r "jonas" *.log
+		
+		find . -name "resource.properties" -type f -exec grep -r "apns" {} \; | wc -l
+		
+	
+		
+
+	# watch {명령어}
+		: 2초마다 명령어 실행
+		
+		** -d, --differences[=cumulative]        highlight changes between updates
+		** -n, --interval=<seconds>              seconds to wait between updates
+		
+		- command에 띄어쓰기가 들어갈 경우는 ' ' 으로 묶어 준다. uptime 값을 5초 간격으로 화면에 계속 출력
+			watch -d -n 5 'cat /proc/uptime'
+			
+		watch date
+		
+		
+
+	# ubuntu ip 변경
+		ip addr
+	
+		sudo vi /etc/netplan/00-installer-config.yaml
+			=> 변경
+			
+		sudo netplan apply
+		
+		ip addr
+
+	# find . -name {폴더명} -type d -exec rm -rf {} \;
+		=> 폴더명 일치하는 폴더 찾아서 삭제
+		find . -name .metadata -type d -exec rm -rf {} \;
+
+	# ss -np | grep 8888
+		=> 연결중인 포트 확인
+
+	# curl
+		=> 찾기!
+
+	# brctl show
+		=> bridge 네트웍
+
+	# df -h /
+		=> disk 사용량을 모니터링 할 때 활용!
+
+	# sudo -i
+
+	# lsblk
+		=> device name (tree is the device name)
+			(Disk 크기)
+
+	# lscpu
+		=> cpu info
+
+	# curl {url} 80
+		curl localhost 80
+		
+	# alias
+		alias cip="docker inspect --format '{{.NetworkSettings.IPAddress}}'
+		alias
+
+	# who
+	
+	# date
+
+	# mkdir
+		mkdir -p 1/2/3/4/5
+		mkdir -m 777 share
+		
+	# rmdir
+		rmdir -p 1/2/3
+		rmdir share
+		
+	# cd
+		cd -
+		
+	# tree
+		tree
+		
+	# cp
+		cp -i /etc/hosts ./hosts
+			=> Be careful with "overwrite"
+		
+	# echo
+		echo "hello world" > file1.txt
+		
+	# iptables
+		iptables -nL
+		iptables -A INPUT -p tcp -s 1.1.1.1 -d 192.168.0.1 --dport 3306 -j ACCEPT
+		iptables -I OUTPUT 3 -p udp --dport 3306 -j DROP
+		
+	# netstat
+		netstat -nlpt
+		
+	# less
+		ps -ef | less
+		
+	# w
+	
+	# cat /etc/os-release
+		=> check os infomation
+		
+	# free -h
+		=> memory usage
+		
+	# uname -r
+		=> check kernel infomation
+		
+	# file filename
+		file jonas.txt
+	
+	# cat
+		cat -n 1 filename
+			=> show file name with line number
+			
+		cat file1 file2
+			=> both
+			
+		cat file1 > file2
+			=> write file2
+		
+		cat > file1
+			=> write file2
+			+ 'ctrl + d'
+		
+		cat file1 >> file2
+			=> write file2 after file2 contents
+			
+	# more
+		more +1 filename
+			=> show file contents with line number 1
+			
+		more +/jonas filename
+			=> show file contents with jonas in it
+			
+	# less
+		less -N filename
+		ps -ef | less -N
+	
+			
+	# head
+		head -1 filename
+		
+	
+	# tail
+		tail -1 filename
+		
+
+
+
+
+
+
+
+	
+# =====================
+# vi
+# =====================
+	
+	
+	--------------
+	Command Mode
+	--------------
+	
+	# w
+		3w
+		1w
+	
+	# b
+		3b
+		2b
+		
+	# ^
+		=> Beginning of sentence
+		
+	# $
+		=> End of sentence
+
+	# G
+		=> End of File
+	
+	# x
+		1x
+		2x
+		3x
+		
+	# dw
+		=> delete word
+		1dw
+		2dw
+		3dw
+		
+	# dd
+		=> delete line
+		1dd
+		3dd
+		4dd
+		
+	# d^
+		=> delete from cursor to beginning of sentence
+	
+	# d$
+		=> delete from cursor to end of sentence
+	
+	# dG
+		=> delete from cursor to end of file
+		
+	# p
+	
+	# u
+	
+	# y
+		1y
+		2y
+		3y
+		
+	# yw
+		1yw
+		2yw
+		3yw
+		
+	# y^
+		=> copy from cursor to beginning of sentence
+		
+	# y$
+	
+	# yG
+	
+	# r + {charactor}
+		=> 'a'
+		
+	# cw
+		1cw
+		2cw
+			=> delete 'n' words
+				and Change mode to 'Input Mode'
+	
+	# cc
+		1cc
+		2cc
+			=> delete 'n' lines
+				and change mode to 'Input Mode'
+	
+	# c^
+		=> delete from cursor to beginning of sentence
+			and change mode to 'Input Mode'
+	
+	# c$
+		=> delete from cursor to end of sentence
+			and change mode to 'Input Mode'
+			
+	# R
+		=> insert Mode (The same as Windows)
+		
+	# .
+		=>  repeat the last command
+			
+			
+
+
+	--------------
+	Input mode
+	--------------
+	# a
+	
+	# i
+	
+	# o
+	
+
+
+	--------------
+	Ex mode
+	--------------
+	
+	# :e!
+	
+	# :w
+	
+	# :w newfilename
+		=> write new file
+		=> but after it, still editing the same file
+		
+	# :r filename
+		=> read filename
+			and put contents at the cursor
+	
+	# /word
+		=> find below from the cursor
+		
+		/word
+		/^word
+		/word$
+		
+		=> n
+		=> N
+		
+		
+	# ?word
+		=> find above from the cursor
+		
+	
+	# :%s/oldstring/newstring
+		=> replace every oldstring to newstring
+		
+	# :s/oldstring/newstring
+		=> replace first oldstring from cursor to newstring
+		
+	
+	# :set number
+	
+	# :set nonumber
+	
+	# :set ts=tabsize
+		:set ts=2
+		:set ts=3
+		
+	# :set hlsearch
+	
+	# :set nohlsearch
+	
+	# :set paste
+		=> off auto-indent?
+		
+	
+	=> if you make '~/.vimrc' file that has ":set *",
+		it will apply automatically
+		
+
+
+
+		
+	
+	
+# =====================
+# Wildcard
+# =====================
+
+	# ?
+		=> one character
+		
+		
+	# *
+		=> any string
+		
+		
+	# []
+		=> character class
+		
+		ls [df]*
+			-> dssssssssss
+			-> fssssssssss
+			-> d
+	
+		ls [abc]
+			-> a
+			-> b
+			-> c
+			
+		ls [a-c]
+			-> a
+			-> b
+			-> c
+		
+		ls *[12][5-7]
+			-> sssssss15
+			-> sssssss26
+			
+	
+	# {}
+		=> brace
+		
+		mkdir dir{1,2,3}
+		ls
+			-> dir1
+			-> dir2
+			-> dir3
+			
+		mkdir dir{1..3}
+		ls
+			-> dir1
+			-> dir2
+			-> dir3
+			
+		mkdir -p test/{a,b,c}
+		ls -R
+			-> test
+			-> test/a
+			-> test/b
+			-> test/c
+			
+			
+
+# =====================
+# Multi Cmd
+# =====================
+	
+	# ;
+		=> excute in order (doesn't matter how the result of the previous one came out)
+	
+		date;who
+		
+		
+
+	# &&
+		=> start only if the previous one has been succeeded
+		
+		date && who
+			-> Both OK
+		
+		data && who
+			-> Only data
+		
+		
+		
+	# ||
+		=> start only if the previous one has been failed
+		
+		date || who
+			-> Only date
+			
+		data || who
+			-> Only who
+			
+			
+	

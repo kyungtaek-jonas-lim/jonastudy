@@ -1,0 +1,872 @@
+			
+# =====================
+# 도커 실행
+# =====================	
+	sudo systemctl start docker
+	sudo systemctl enable docker
+	
+	
+	sudo docker run hello world
+	sudo docker version
+			
+			
+# =====================
+# 도커 권한 부여
+# =====================		
+	su -
+	usermod -a -G docker {사용자}
+	
+	
+	# 권한 부여 후 테스트
+		=> docker ps
+		
+		
+# =====================
+# 도커 image layer 파일 경로
+# =====================	
+
+	cd /var/lib/docker/overlay2
+
+			
+			
+# =====================
+# 도커 명령어
+# =====================		
+
+	docker version
+	
+	docker login
+	
+	docker push hellojs:latest
+	
+	
+	
+	
+	1. 컨테이너 이미지 사용
+		
+		docker build -t {container name}:{container tag} {file location}
+			docker build -t hellojs:latest .
+		
+		
+		docker search [option] {image}:{tag}
+			docker search --filter is-official=true {image}
+			
+			=> name, repository, description에서 일치할 경우 찾음
+		
+		
+		docker pull [option] {image}:{tag}
+			=> cd /var/lib/docker/overlay2
+			
+			docker pull mysql
+				=> 최신버전이 8일때
+				docker pull mysql:8
+					=> 다운로드 받지 않고 동일 이미지 활용하여 태그만 다르게 표시
+		
+		
+		docker images [option]
+			docker images --no-tunc
+				=> 간략히 표시되었던 IMAGE ID가 모두 표시
+		
+		
+		docker inspect [option] {image}:{tag}
+			
+			
+		docker rmi [option] {image}
+	
+	
+		docker tag webserver:v1 jonasweet9900/webserver:v1
+			** tag 컨테이너 이미지명 변경 (계정이름 붙히기)
+		
+	
+	
+	
+	2. 컨테이너 실행 및 종료 명령어
+		
+		docker create [option] {container name} {image}:{tag}
+			=> docker create --name webserver nginx:1.14
+				=> create는 기본이 백그라운드 모드로 실행
+			
+			
+		docker start {container name}
+			=> socker start webserver
+			
+			
+		docker run [option] {container name} {image}:{tag}
+			=> docker run --name webserver nginx:1.14
+			=> run = pull + create + start
+				1) container 이미지가 로컬에 없으면 다운로드(pull)
+				2) create
+				3) start	
+				
+			docker run -d -p 5000:5000 --restart always --name registry registry:2
+				=> registry download and run
+	
+			docker run -d -p 80:80 --name {conatiner name} {image}
+			
+				** -d 		: demon
+				** -p 		: port forwarding
+				** --name	: container name
+				
+			docker run -e MYSQL_ROOT_PASSWORD mysql /bin/bash
+			
+			docker run -e MYSQL_ROOT_PASSWORD=pass \
+				-e MYSQL_USER=user \
+				-e MYSQL_PASSWORD=pass \
+				-e MYSQL_DATABASE=db
+				mysql
+			
+			docker run -v {host경로}:{container데이터경로}
+				ex> docker run -d --name db -v /dbdata:/var/lib/mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=pass mysql:latest
+				
+			-v {host path}:{container mount path}:{read write mode}
+				docker run -d -v /webdata:/var/www/html:ro httpd:latest	
+			
+			v {container mount path}
+			docker run -d -v /var/lib/mysql -e MYSQL_ROOT_PASSWORD=pass mysql:latest
+				=> host의 저장 경로는 UUID 디렉토리에 저장
+				/var/lib/docker/volumes/{container UUID 디렉토리}/_data
+				
+				
+			** 컨테이너끼리 데이터 공유
+				=> 하나의 컨테이너는 data write
+				다른 하나는 data read
+				
+				1) 컨테이너 하나 실행
+					docker run -v /webdata:/webdata -d --name df jonasweet9900/df:latest
+					
+				2) 다른 컨테이너 실행
+					docker run -v /webdata:/usr/share/nginx/html:ro -d nginx:latest
+			
+			
+			** Port Forwording
+				: iptables rule을 통한 port 노출
+				
+				-p {host port}:{container port}
+				
+				-p {container port}
+					=> Host의 랜덤한 포트로 port-forwarding
+				
+				-P
+					=> Host의 랜덤한 포트와 container 내부에서 port로 정의되어 있는 port (dockerfile의 'EXPOSE'에 기술된 port)로 port-forwarding
+					
+				확인> iptables -t nat -L -n -v
+				
+			docker run -d --name appjs --net mynet --ip 192.168.100.100 -p 8080:8080 jonasweet9900/appjs
+
+				
+				
+		
+		docker ps [option]
+			docker ps --no-trunc
+				=> 간략히 표시되었던 CONTAINER ID가 모두 표시
+			docker ps -a
+				=> 모든 컨테이너 표시
+			
+			** COMMAND : 해당 명령어를 통해서 컨테이너를 실행
+			** CREATED : 생성 시간
+			** STATUS : 현재 컨테이너 상태
+			
+		
+		docker inspect {container name}
+			=> docker inspect webserver
+			
+			** NetworkSettings > IPAddress : 현재 러닝중인 아이피
+			** 해당 컨테이너가 사용하는 IO, 리소스, 속도 등
+			** 해당 컨테이너가 활용하는 이미지 레이어 등
+			
+			docker inspect --format '{{.NetworkSettings.IPAddress}}' webserver
+				=> 특정 값만 살펴보고 싶다.
+		
+		
+		docker stop [option] {container name}
+			=> docker stop webserver
+		
+		
+		docker rm [option] {container name}
+			=> docker rm -f webserver
+			=> 영구적으로 데이터 모두 삭제! 조심해야한다!
+			docker rm -f $(docker ps -aq)
+	
+	
+	
+	
+	3. 동작중인 컨테이너 관리 명령어
+		
+		docker top [option] {container name}
+			=> 현재 실행중인 컨테이너의 동작 프로세스 확인
+			docker top webserver
+			
+			
+		docker logs [option] {container name}
+			=> 현재 실행중인 컨테이너의 로그
+			docker logs webserver
+			docker logs -f webserver
+			
+			
+		docker exec [option] {container name}
+			=> 현재 실행중인 컨테이너에 원하는 명령을 추가로 더 실행
+			docker exec -it webserver /bin/bash
+				: 컨테이너에 직접 접속하여 배시 쉘 사용
+				
+				** -i : interactive
+				** -t : terminal
+				** -it
+					=> terminal 만들어서 interactive하게 연결시켜줘
+					
+			docker exec -it db /bin/bash			
+				/# mysql -u root -ppass
+				
+			
+		docker attatch [option] {container name}
+			=> foreground로 실행중인 컨테이너 연결
+			docker atttach centos
+			
+			
+	
+	
+	# Network 관리
+		
+		docker network create --driver bridge \
+			--subnet 192.168.100.0/24 \
+			--gateway 192.168.100.254 \
+			mynet
+				
+		** docker0를 Bride Network로 활용하는 컨테이너를 static IP로 할당할 수 없다!
+			방법1) docker0 Network Interface의 Network 범위 변경
+			방법2) user-defined bridge network 생성
+			
+			- driver default : 'bridge' driver
+			- subnet default : 172.18.x.x/16 (/24인가?)
+			- gateway default : subnet의 x.x.x.1
+			
+		
+		docker network ls
+		
+		docker network rm {network 명}
+		
+		docker run -d --name appjs --net mynet --ip 192.168.100.100 -p 8080:8080 jonasweet9900/appjs
+			=> ip 주소 미설정 시, subnet이 192.168.100.0/24일 경우 192.168.100.1 부터 순차 할당
+			
+			
+		--link {container name}:{alias name}
+			=> multi-tier 서비스
+				예> mysql, wordpress가 front-end, back-end로서 통신하는 방법
+				
+				docker run -d --name mysql -v /dbdata:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=wordpress -e MYSQL_PASSWORD=wordpress mysql:5.7
+		
+				docker run -d --name wordpress --link mysql:mysql -e WORDPRESS_DB_PASSWORD=wordpress -p 80:80 wordpress:4
+				
+		docker inspect mynet
+			
+			
+			
+	# Private Registry
+		: 사내 컨테이너 저장소
+		
+		=> "registry"라는 컨테이너 이미지
+		
+			# 실행
+				docker run -d -p 5000:5000 --restart always --name registry registry:2
+	
+	
+			# 활용
+				$ docker pull ubuntu
+				$ docker tag ubuntu localhost:5000/ubuntu
+				$ docker push localhost:5000/ubuntu
+	
+			
+		
+		
+	
+	---------------------
+	컨테이너 하드웨어 리소스 제한 (Container Resource Limit)	
+			
+			
+	# Memory 리소스 제한
+		(제한 단위는 b, k, m, g)
+	
+		** -m, --memory
+			: 컨테이너가 사용할 최대 메모리 양 지정
+			
+		** --memory-swap
+			: 컨테이너가 사용할 스왑 메모리 영역에 대한 설정
+				=> 메모리 + 스왑, 생략 시 메모리의 2배가 설정
+				
+		** --memory-reservation
+			: --memory 값 보다 적은 값으로 구성하는 소프트 제한 값 설정
+			
+		** --oom-kil-disable
+			: OOM Killer가 프로세스 kill하지 못하도록 보호
+
+		
+		
+		docker run -d -m 512m nginx:1.14
+			=> 512MB 최대로 활용
+		
+		
+		docker run -d -m 1g --memory-reservation 500m nginx:1.14
+			=> 500MB 기본으로 확보하고(항상 쓸 수 있도록 보장받음 : 그렇다고 무조건 쓰는 것은 아님)
+				+ 1GB를 최대로 활용
+			
+			
+		docker run -d -m 200m --memory-swap 300m nginx:1.14
+			=> 200MB 메모리로 최대한 활용하고 100MB(300-200)의 스왑 메모리 활용
+			
+			** 스왑 : 디스크를 메모리로 활용
+			
+			
+		docker run -d -m 200m --oom-kill-disable nginx:1.14
+			=> 200MB를 최대로 활용, 초과 시에도 OOM Killer로부터 보호
+			
+			
+			** Linux Kernel의 기본 기능 중
+				Physical한 메모리 사이즈가 부족하게 되면
+				OOM Killer를 동작시켜서
+				Process들을 Kill 시킨다.
+					
+					
+					
+			
+			
+	# CPU 리소스 제한
+		(코어의 번호는 0부터 시작)
+		
+		** --cpus=""
+			: 컨테이너에 할당할 CPU core 수 지정
+				=> 어떤 코어를 쓸지는 알지 못함
+			
+			--cpus="1.5"
+				: 컨테이너가 최대 1.5개의 CPU 파워 사용가능
+			
+			
+		** --cpuset-cpus
+			: 컨테이너가 사용할 수 있는 CPU나 코어를 할당. CPU 수 지정
+				cpu index는 0부터 시작!!
+				
+			--cpuset-cpus 0-4
+				: 컨테이너가 사용할 수 있는 CPU는 0, 1, 2, 3, 4번 (=> 5개의 코어 활용)
+				
+				
+		** --cpu-shares
+			-c
+			: 컨테이너가 사용하는 CPU 비중으로 계산 (1024가 기본값)
+				
+				--cpu-shares 2048
+					: 기본으로 설정된 컨테이너보다 두 배 많은 CPU 자원 할당
+					
+		
+		
+		docker run -d --cpus=".5" ubuntu:1.14
+			: 0.5 코어 수 활용
+			
+		
+		docker run -d --cpuset-cpus 0-3 ubuntu:1.14
+			: 4개의 코어 (0, 1, 2, 3번 코어 지정!) 활용
+		
+		
+		docker run -d --cpu-shares 2048 ubuntu:1.14
+			: 타 컨테이너 대비 2배 CPU 할당
+		
+		
+		
+		
+	
+			
+	# Block I/O 제한
+		
+		** --blkio-weight
+			--blkio-weight-device
+				: Block IO의 Quota를 설정할 수 있으며 100~1000까지 선택
+				(기본값 500)
+				=> 상대적 가중치 이용
+				
+				모든 컨테이너가 동작될 때 I/O 스케줄링(Block I/O)을 받는다.
+				기본으로 모두 동일한 I/O 스케줄링 값을 가지고 동작
+				
+				
+		** --device-read-bps
+			--device-write-bps
+				: 특정 디바이스에 대한 읽기와 쓰기 작업의 초당 제한을 kb, mb, gb 단위로 설정
+				
+				=> 초당 얼마만큼의 바이트를 read/write할 수 있는지
+				
+				
+				
+		** --device-read-iops
+			--device-write-iops
+				: 컨테이너의 read/write 속도의 쿼터 설정
+					초당 quota를 제한해서 I/O를 발생시킴, 0 이상의 정수로 표시
+					초당 데이터 전송량 = IOPS * 블럭크기 (단위 데이터 용량)
+					
+				
+				=> 초당 Quota 제한으로 read/write 속도 제한
+					
+					
+					
+		docker run -it --rm --blkio-weight 100 ubuntu:latest /bin/bash
+		
+		docker run -it --rm --device-write-bps /dev/vda:1mb ubuntu:latest /bin/bash
+		
+		docker run -it --rm --device-write-bps /dev/vda:10mb ubuntu:latest /bin/bash
+		
+		docker run -it --rm --device-write-iops /dev/vda:10 ubuntu:latest /bin/bash
+		
+		docker run -it --rm --device-write-iops /dev/vda:100 ubuntu:latest /bin/bash
+		
+			
+			
+		
+		
+		
+	---------------------
+	컨테이너 사용 리소스 모니터링 명령어
+	
+	docker stats [option] [container ...]
+		: 실행중인 컨테이너의 런타임 통계 확인
+		
+		docker stats
+			=> 모든 컨테이너에 대한 리소스 정보
+		
+		
+	docker events [option] container=
+		: 도커 호스트의 실시간 event 정보 수집하여 출력
+		
+		docker events -f container=
+		
+		
+	docker image [option] container=
+		
+		docker image -f container=
+	
+	
+	
+	
+	
+	---------------------
+	컨테이너 사용 리소스 모니터링 툴
+	
+	https://github.com/google/cadvisor
+	
+	
+	
+	
+	
+
+			
+# =====================
+# Dockerfile
+# =====================	
+	
+	#
+		: comment
+	
+	FROM
+		: Container의 Base Image (운영 환경)
+			=> Dockerfile의 가장 먼저 기입
+	
+	MAINTAINER
+		: Image를 생성한 사람의 이름 및 정보
+		
+	LABEL
+		: Conainter Image에 Container 정보 저장
+		
+	RUN
+		: 컨테이너 빌드를 위해 Base Image에서 실행할 Commands
+		
+	COPY
+		: 컨테이너 빌드 시 호스트의 파일을 컨테이너로 복사
+		
+	ADD	
+		: 컨테이너 빌드 시 호스트 파일(tar, url 포함)을 컨테이너로 복사
+			=> tar : 압출 풀어서 복사
+			=> url : url 주소의 파일 다운로드 후 복사
+			
+	WORKER
+	(WORKDIR?)
+		: 컨테이너 빌드 시 명령이 실행될 작업 데렉터리 설정
+	
+	ENV
+		: 환경변수 지정
+		
+	USER
+		: 명령 및 컨테이너 실행 시 적용할 유저 설정
+			=> 실행 시 사용자 변경 -> 보안과 연관
+	
+	VOLUME
+		: 파일 또는 디렉터리를 컨테이너의 디렉터리로 마운트
+			=> Application 데이터가 저장되는 공간
+			
+	EXPOSE
+		: 컨테이너 동작 시 외부에서 사용할 포트 지정
+			=> 포트 알려줄 때 활용
+	
+	CMD
+		: 컨테이너 동작 시 자동으로 실행할 서비스나 스크립트 지정
+			=> 동적 스크립트 가능 (보통 매개변수)
+			=> ENTRYPOINT와 혼합 사용 가능
+			
+	ENTRYPOINT
+		: CMD와 함께 사용하면서 command 지정 시 사용
+			=> 동적 스크립트 불가 (보통 명령어)
+			=> CMD와 혼합 사용 가능
+			
+
+
+# 예제 1
+	
+	vi Dockerfile
+	
+		FROM node:12
+			=> Base Image 설정 (node 12 버전)
+		COPY hello.js /
+			=> 컨테이너 빌드시 해당 파일을 "/" 경로에 복사
+		CMD ["node", "/hello.js"]
+			=> "node /hello.js" 실행!
+		
+	docker build -t hello.js:latest .
+
+
+
+# 예제 2
+		FROM ubuntu:18.04
+		MAINTAINER "Jonas Lim <jonasweet9900@gmail.com>"
+		 # KEY-VALUE 타입으로 넣어야한다.
+
+		# install apache
+		RUN apt-get update \
+				&& apt-get install -y apache2
+		# Line을 줄여야 Layer가적게 생김(Layer 수가 적고 사이즈가 적어야 좋음)
+
+		RUN echo "TEST WEB" > /var/www/html/index.html
+		EXPOSE 80
+		CMD ["/usr/sbin/apache2ctl", "-DFOREGROUND"]
+		# 앞의 명령어에 두번째 인자를 매개변수로 하여 실행
+		
+		
+		
+		
+# 만들어놓은 컨테이너 배포하기 (Docker Hub 계정으로 업로드)
+	
+	docker login
+	
+	docker tag webserver:v1 jonasweet9900/webserver:v1
+		** tag 컨테이너 이미지명 변경 (계정이름 붙히기)
+	
+	docker images
+		=> 추가된 이미지 확인 (이미지 아이디는 기존과 동일하여 태그만 추가된 걸로 확인)
+			=> 실제 이미지는 IMAGE ID로 저장 (현재 : 이름만 각각 2개 존재)
+			
+	docker push jonasweet9900/webserver:v1
+		=> 배포
+		
+	docker push jonasweet9900/hellojs
+		** latest 태그는 생략 가능
+		
+		
+
+
+
+
+# =====================
+# Docker Compose
+# =====================
+
+
+1. FILE
+
+
+	# version
+		: compose 버전
+			=> 버전에 따라 지원 문법 다름
+		ex> version: "2"
+		
+	# services
+		: compose를 이용하여 실행할 컨테이너 옵션 정의
+	
+		ex>
+			services:
+				webserver:
+					image: nginx
+				db:
+					image: redis
+					
+					
+	# build
+		: 컨테이너 빌드
+		
+		ex>
+			services:
+				webapp:
+					build: .
+	
+	
+	# image
+		: compose를 통해 실행할 이미지 지정
+		
+		ex>
+			services:
+				webapp:
+					image: centos:7
+					
+	
+	# command
+		: 컨테이너에서 실행될 명령어 지정
+			=> PID 1번으로 실행될 subcommand
+				ex> docker run centos /bin/bash
+					"/bin/bash"가 PID 1번으로 동작 (subcommand)
+		
+		ex> 
+			services:
+				webapp:
+					image: node:12-alpine
+					command: sh -c "yarn install && yarn run dev"
+				
+				
+	# port
+		: 컨테이너가 공개하는 포트를 나열
+		
+		ex>
+			services:
+				webapp:
+					image: htpd:latest
+					port:
+						- 80
+						- 8443:443
+							=> docker host port : 8443
+							=> container port : 443
+	
+	
+	# links
+		: 다른 컨테이너와 연계할 때 연계할 컨테이너 지정
+		
+		ex> 
+			services:
+				webserver
+					image: wordpress:latest
+					links:
+						db: mysql
+	
+	
+	# expose
+		: 포트를 링크로 연계된 컨테이너에게만 공개할 포트 (link에서 연계된 컨테이너만? 아니면 나를 연계한 컨테이너에게?)
+		
+		ex>
+			services:
+				webapp:
+					expose: => 예시 없음
+	
+	
+	# volumes
+		: 컨테이너에 볼륨을 마운트
+		
+		ex>
+			services:
+				webapp:
+					image: httpd
+					volumes:
+						- /var/www/html
+					
+	# environment
+		: 컨테이너에 적용할 환경변수를 정의
+		
+		ex>
+			services:
+				database:
+					image: mysql:5.7
+					environment:
+						MYSQL_ROOT_PASSWORD: pass
+
+	
+	# restart
+		: 컨테이너가 종료될 때 적용할 restart 정책
+		
+		- no			: 재시작 되지 않음 (기본값)
+		- always		: 컨테이너를 수동으로 끄기 전까지 항상 재시작
+		- on-failure 	: 오류가 있을 시에 재시작
+		
+		ex>
+			services:
+				database:
+					image: mysql:5.7
+					restart: always
+	
+	
+	# depends_on
+		: 컨테이너 간 종속성 정의. 정의한 컨테이너가 먼저 동작되어야 함.
+		
+		ex>
+			services:
+				web:
+					image: wordpress:latest
+					depends_on:
+						- db
+						
+				db:
+					image: mysql
+					environment:
+						MYSQL_ROOT_PASSWORD: pass
+		
+	
+	
+	
+	
+	
+	
+
+
+2. COMMAND
+
+	docker-compose up
+	
+	docker-compose ps
+	
+	docker-compose logs
+	
+	docker-compose run
+	
+	docker-compose start
+	
+	docker-compose stop
+	
+	docker-compose restart
+	
+	docker-compose pause
+	
+	docker-compose unpause
+	
+	docker-compose port
+	
+	docker-compose config
+	
+	docker-compose kill
+	
+	docker-compose rm
+	
+	docker-compose down
+	
+	docker-compose -f
+	
+	docker-compose scale
+	
+	
+	# up 
+		: 컨테이너 생성/시작
+			=> 실행 시, docker-compose bridge 생성!
+		
+		ex>
+			docker-compose up -d
+			docker-compose up
+			
+			
+	# ps
+		: 컨테이너 목록 표시
+		
+		ex> docker compose ps
+		
+	
+	# logs
+		: 컨테이너 로그 출력
+		
+		ex> docker-compose logs (서비스 이름)
+		
+	
+	# run
+		: 컨테이너 실행
+		
+		ex> docker-compose run (서비스 이름) (실행 명령어)
+			docker-compose run web env
+				=> web 컨테이너에 evn 명령어 전달
+		
+	
+	# start
+		: 컨테이너 시작
+		
+		ex> docker-compose start
+		
+	
+	# stop
+		: 컨테이너 정지
+		
+		ex> docker-compose stop
+		
+	
+	# restart
+		: 컨테이너 재시작
+		
+		ex> docker-compose restart
+		
+		
+	# pause
+		: 컨테이너 일시정지
+	
+	# unpause
+		: 컨테이너 재개
+		
+	# port
+		: 공개 포트 번호 표시
+	
+	# config
+		: yml 파일 구성 확인 (문법 체크 등)
+		
+		ex> docker-compose config
+		
+		
+	# kill
+		: 실행 중인 컨테이너 강제 정지
+		
+	# rm
+		: 컨테이너 삭제
+	
+	# down
+		: 리소스 삭제
+		
+		ex> docker-compose down
+		
+		
+	# -f
+		: 다른 디렉토리의 docker-compose.yml 파일 실행
+		
+		ex> docker-compose -f /other-dir/docker-compose.yml
+	
+	
+	# scale
+		: 컨테이너 scale 조절
+		
+		ex> docker-compose scale (서비스이름)=(개수)
+		
+		
+		
+		
+	# 연습
+	
+		https://docs.docker.com/compose/gettingstarted/
+		
+		docker-compose scale redis=3
+			=> scale out
+		
+		docker-compose scale redis=1
+			=> scale in
+			
+		docker ps
+			=> 포트 포워딩된 컨테이너는 안된다!
+				=> 포트 충돌됨!
+				=> 다른 포트를 써야함!
+				
+		docker compose run web env
+			=> 현재 실행중인 컨테이너인 web에 env 명령어를 전달해주세요!
+		
+		docker compose logs web
+			=> 현재 docker compose로 인하여 동작하는 컨테이너인 web의 log 정보를 조회!
+			
+		docker compose stop
+		
+		docker compose ps
+			=> Exit 상태 확인
+			
+		docker compose down
+			=> 중지 + 종료!
+			
+		docker compose down --volumes
+			=> docker compose로 인하여 만들어진 volume도 삭제!
+			
+		https://docs.docker.com/samples/wordpress/

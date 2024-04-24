@@ -1,0 +1,51 @@
+
+
+# exchange 생성
+rabbitmqadmin list exchanges -u {user_name} -p {password}
+
+rabbitmqadmin declare exchange name="{exchange_name}" type="topic" durable="true" -u {user_name} -p {password}
+
+rabbitmqadmin list exchanges -u {user_name} -p {password}
+
+
+
+# rabbitmqadmin 도움말
+rabbitmqadmin --help -u {user_name} -p {password}
+
+
+# queue 생성
+rabbitmqadmin list queues -u {user_name} -p {password}
+
+rabbitmqadmin declare queue name="{queue_name}" durable="true" -u {user_name} -p {password}
+
+rabbitmqadmin list queues -u {user_name} -p {password}
+
+
+# 바인딩
+rabbitmqadmin declare binding source="{exchange_name}" destination_type="queue" destination=""{queue_name}"" routing_key="{routing_key}" -u {user_name} -p {password}
+
+rabbitmqadmin list bindings -u {user_name} -p {password}
+
+
+# 메시지 보내기
+rabbitmqadmin publish exchange="{exchange_name}" routing_key="{routing_key}" payload="{message_data}" -u {user_name} -p {password}
+
+rabbitmqadmin list queues -u {user_name} -p {password}
+
+
+# 메시지 Get
+rabbitmqadmin get queue="{queue_name}" requeue="false" -u {user_name} -p {password}
+
+rabbitmqadmin list queues -u {user_name} -p {password}
+
+
+
+# exchange 삭제
+rabbitmqadmin delete exchange name='{exchange_name}' -u {user_name} -p {password}
+
+
+# queue 삭제
+rabbitmqadmin delete queue name='{queue_name}' -u {user_name} -p {password}
+
+
+
