@@ -1,0 +1,3590 @@
+
+
+# ==============================
+# ==============================
+# CLI
+# ==============================
+# ==============================
+
+
+
+------------------------
+kubectl run webserver --image=nginx:1.14 --port 80
+
+
+
+------------------------
+kubectl create deployment webui --image=httpd --replicas=3
+		** run vs create
+			- run : 컨테이너를 1개 실행할 때 활용
+			- create : "deployment"와 함께 실행할 경우, 컨테이너를 n개 실행 가능!
+			
+	kubectl create -f webserver-pod.yaml
+
+
+
+------------------------
+kubectl delete pod webserver
+	kubectl delete deploy webui
+	kubectl delete pod --all
+	kubectl delete pods --selector name=mainui
+		=> 해당 조건에 맞는 pod 삭제
+
+
+
+------------------------
+kubectl get nodes
+	kubectl get pods -o wide
+	kubectl get deploy
+	kubectl get pod webserver -o yaml
+	kubectl get pod webserver -o json
+	kubectl get services
+	kubectl get namespaces
+	kubectl get rc
+		=> ReplicationController
+	kubectl get rs
+		=> ReplicaSet
+	kubectl get pods --show-labels
+	kubectl get pods -l name=mainui
+		=> 해당 label key를 갖는 pod 목록만 조회
+	kubectl get pods --selector name=mainui
+		=> 위 커멘드와 동일
+	
+		** -o
+			- wide : 자세하게 조회
+			- yaml : yaml 형태로 조회
+			- json : json 형태로 조회
+				=> data 추출 시, json 포맷이 유용
+	
+	kubectl get pods webserver -o json | grep -i podip
+	kubectl get pods -o wide --watch
+		=> write changes
+
+
+
+------------------------
+kubectl describe pod web1
+
+
+
+------------------------
+kubectl exec webserver -it -- /bin/bash
+	** kubectl exec [pod] webserver -it -- /bin/bash
+		=> pod 생략 가능! (pod만 가능하기 때문에)
+		=> -- 이후에 container 안에서 실행할 명령어 입력 (/bin/bash)
+
+
+
+------------------------
+kubectl logs webserver
+	kubectl logs -f webserver
+	
+	** kubectl logs [pod] webserver
+		=> pod 생략 가능! (pod만 가능하기 때문에)
+
+
+
+------------------------
+kubectl port-forward webserver 8080:80
+	** kubectl port-forward [pod] webserver 8080:80
+		=> pod 생략 가능! (pod만 가능하기 때문에)
+		
+	=> 	다른 세션 탭에서 (현재 마스터 노드의 8080포트를 webserver의 80포트로 연결)
+		curl localhost:8080
+
+
+
+------------------------
+kubectl edit deploy webui
+	=> vi 에디터가 뜬다.
+
+		spec:
+			replicas: {값변경}
+		
+		esc -> :wq
+		=> 바로 적용
+
+
+
+------------------------
+kubectl run webserver --image=nginx:1.14 --port 80 --dry-run
+	=> 실행하지 않고 실행되는지만 체크!
+	=> 된다.
+
+	kubectl run webserver --image=nginx:1.14 --port 80 --dry-run -o yaml > webserver-pod.yaml
+
+
+
+------------------------
+# namespace
+	: 사실 K8S API 종류 중 하나
+	
+	** namespace
+		: 클러스터 하나를 여러개의 논리적인 단위로 나눠서 사용
+		
+		=> 단일 Cluster를 마치 여러개의 Cluster가 있는 것 처럼 활용
+
+
+	kubectl create namespace blue
+	
+	kubectl create namespace green --dry-run -o yaml > green-ns.yaml
+	kubectl create -f green-ns.yaml
+	
+	kubectl get namespaces
+	
+	kubectl delete namespace blue
+	kubectl delete -f namespace green.yaml
+
+	kubectl get pod --namespace default
+	kubectl get pod -n default
+	
+	kubectl get pods --all-namespaces
+	
+	kubectl create -f nginx.yaml -n blue
+	
+		vi nginx.yaml (yaml 파일 내부에 namespace 고정 시키기)
+kind: Pod
+metadata:
+  name: mypod
+  namespace: orange ** 여기 부분 추가@@@@@@@@@
+spec:
+  containers:
+  - image: nginx:1.14
+    name: nginx
+    ports:
+    - containerPort: 80
+    - containerPort: 443
+
+
+
+------------------------
+kubectl get pods --show-labels
+	
+kubectl get pods -l name=mainui
+	=> 해당 label key를 갖는 pod 목록만 조회
+	
+kubectl get pods --selector name=mainui
+	=> 위 커멘드와 동일
+	
+kubectl delete pods --selector name=mainui
+
+kubectl label pod pod-demo name=test
+
+kubectl label pod pod-demo name=login
+	=> 이미 name키가 있는 경우 다른 value를 지정할 수 없다! (--overwrite라는 속성 필요)
+		
+kubectl label pdd pod-demo name=login --overwrite
+
+kubectl label pod cmdpod name=order rel=beta
+	=> 두 개 이상의 label은 공백으로 구분
+	=> 하나라도 기존에 있는 label key 활용하면 --overwrite 속성 필수
+	
+kubectl label pod cmdpod name-
+	=> `(레이블키명)-` 로 Label 삭제 가능
+
+kubectl get pods --selector rel=stable
+kubectl get pods --selector rel=beta
+
+kubectl delete pods --selector rel=beta
+
+
+kubectl get nodes -L disk,gpu
+	=> label 중 disk와 gpu key만 보겠다.
+
+
+
+------------------------
+# config, context
+	
+	=> base namespace를 변경하기 위해서는 우선 kubernetes의 config에 namespace를 등록해야한다.
+	
+	** context
+		: namespace를 등록하는 공간을 kubernetes config의 context라고 부른다.
+	
+	kubectl config view
+		: 현재 kubernetes config 상태 정보 조회
+		
+		contexts:
+		-context:
+			=> 현재 context는 하나 존재
+				cluster:
+					=> 클러스터
+				user:
+					=> 유저
+			name:
+				=> 해당 context의 이름
+		
+		
+	kubectl config current-context
+		: 현재 사용중인 context (base namespace) 조회
+
+
+
+------------------------
+# namespace-switch (base namespace 변경)
+	kubectl config set-context {context name} --cluster={cluster name} --user={user name} --namespace={namespace name}
+	
+		ex> kubectl config set-context blue@kubernetes --cluster=kubernetes --user=kubernetes-admin --namespace=blue
+			
+			** context name은 반드시 뒤에 @kubernetes가 붙을 필요 없다!
+			** namespace 생략 시, default namespace
+	
+	kubectl config current-context
+
+	kubectl config use-context {사용할 context}
+		ex> kubectl config use-context blue@kubernetes
+		
+	kubectl config delete-context {삭제할 context}
+	
+	
+	** kubectl get namespaces
+		: blue 안에 mypod라는 pod 존재!
+			=> 삭제하면?
+				namespace안에 pod, service, volume 등이 존재
+					=> 삭제하면 모두 삭제됨!
+			
+				=> namespace가 API 중 가장 큰 단위
+					-> namespace 안 여러 API 존재
+					-> namespace 삭제 시 함께 삭제됨
+			
+	kubectl delete namespace blue
+		=> context는 삭제 되지 않음! (pod, service, volume등 만 삭제되는 듯)
+		=> 따로 kubectl config delete-context {context 이름} 해줘야한다!
+				ex> kubectl config delete-context blue@kubernetes
+
+
+
+------------------------
+# API Version
+	kubectl explain [API Object]
+		ex> kubectl explain pod
+
+
+
+------------------------
+# mutli container Pod
+
+	kubectl exec {pod 명} -c {container 명} -it -- /bin/bash
+		ex> kubectl exec muli-pod -c centos-container -it -- /bin/bash
+	
+	kubectl logs {pod 명} -c {container 명}
+		ex> kubectl logs multi-pod -c nginx-container
+	
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multiPod
+spec:
+  containers:
+  - name: nginx-container
+    imgae: nginx:1.14
+    ports:
+    - containerPort: 80
+  - name: centos-container
+    image: centos7
+    command:
+    - sleep
+    - "10000"
+---
+	=> 이 상황에서 centos 터미널에 들어가 curl localhost:80시 nginx 호출 가능!
+	=> Pod 내 Container는 동일한 IP 활용!!
+	
+		cat /etc/hosts
+		=> 두 컨테이너 모두 동일
+		=> 등록된 host도 IP가 동일하다는 것을 알 수 있다.
+
+
+
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-resource
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:1.14
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    resources:
+      requests: # Pod를 실행하기 위한 최소 Resource 양 요청 (어떤 Node에서 해당 Pod가 실행될 지 Scheduler가 판단하는 기준 설정) / 조건이 성립되는 Node 미존재의 경우, Pod 미생성 -> 조건 성립 Node 생성되면 바로 해당 Node에 Pod 생성
+        cpu: 200m # 1000m == 1
+        memory: 250Mi # 1 Mi == 1024 Ki
+      limits: # 파드가 사용할 수 있는 최대 Resource 양 제한 / limits: 만 설정 시 requests도 동일하게 적용
+        cpu: 1
+        memory: 500Mi
+
+
+
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-resource
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:1.14
+    ports:
+    - containerPort: 80
+      protocol: TCP
+    env:	# 환경변수 적용!
+    - name: MYVAR
+      value: "testvalue"
+	  
+	  
+	컨테이너에 터미널로 들어가 env 명령어로 확인 가능
+		1) kubectl exec nginx-pod-env -it -- /bin/bash
+		2) env
+			=> 컨테이너의 안에 있는 환경변수 조회 명령어
+
+
+
+------------------------
+kubectl get pods --show-labels
+
+
+
+------------------------
+kubectl scale rc rc-nginx --replicas=2
+
+kubectl scale rs rs-nginx --replicas=2
+	
+kubectl delete rs rs-nginx --cascade=false
+	=> "kubectl delete rs rs-nginx"  :  ReplicaSet과 Pod 모두 삭제!
+	=> Controller만 삭제 하고싶다? ("--cascade=false")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ==============================
+# ==============================
+# Kubernetes 동작 원리
+# ==============================
+# ==============================
+
+	1. 개발자 or 운영자가 Container 빌드 (docker build)
+		(Docker 활용)
+	
+	2. Docker Hub에 저장 (docker push)
+		(Docker 활용)
+	
+	3. Kubernetes(kubectl)에게 Container 실행 요청 (kubectl)
+		=> Master Node(Control Plane)에게 보내어 진다.
+			(kubelctl을 통하여 Master node의 Rest API Server에 REST API를 호출!)
+	
+	4. Master Node의 Scheduler에게 어느 Node에 Pod를 생성할지 요청한다!
+		=> Scheduler에게 어느 노드에서 실행하면 가장 좋을 지 요청!
+			-> Scheduler는 각 Node의 상태를 보고 Master Node의 REST API Server에 응답을 한다.
+			-> REST API Server는 지정된 Node의 kubelet에 컨테이너 실행 요청
+			-> 지정 Node의 kubelet은 해당 Node의 Docker Daemon에게 수신한 명령을 Docker 명령어로 바꿔서
+				Docker Daemon에게 Container 실행 요청 진행
+			-> Docker Daemon은 Docker Hub에서 해당 Image가 있는지 search 후 있으면 pull 후 컨테이너 실행
+			-> 실행된 컨테이너를 kubernetes는 POD라는 단위로 관리
+		
+		
+		
+
+
+
+# Kubernetes Component
+	** Master Node의 Component
+		1. kube-apiserver
+			- k8s API를 사용하도록 요청을 받고 요청이 유효한지 검사
+				=> kubectl 명령어 요청의 문법이나 권한이 합당한지 검사 후 합당하면 실행
+				
+				
+		2. etcd
+			- key-value 타입의 저장소
+				1) Worker node 들에 대한 상태 정보 저장
+				2) K8s 상태 정보 (k8s 실행 정보 등)
+			
+			** Worker node 들에 대한 상태 정보 저장
+				1) 각 Worker 노드의 hardware resource 정보 및 사용 정보
+				2) 각 Worker 노드의 Container 동작 상태
+				3) 각 Worker 노드의 다운로드 받은 Image 상태
+			
+			** etcd가 Worker 노드의 정보를 가질 수 있는 이유?
+				- 각 Worker 노드에는 kubelet이라는 데몬 존재
+					-> kubelet은 CAdvisor라는 컨테이너 모니터링 툴이 포함하고 있음
+					-> 각 Worker 노드의 kubelet은 해당 노드의 `컨테이너 기반의 상태정보`와 `하드웨어 정보`를 수집 (through CAdvisor) 후 Master Node에게 전달
+					-> 정보를 받은 Master Node는 etcd에 저장
+			
+			
+		3. kube-scheduler
+			- pod를 실행할 node 선택
+			
+			
+		4. kube-controller-manager
+			- pod를 관찰하며 개수 보장
+			
+			
+		5. CoreDNS
+			: Add-on program
+			=> master node 구성할 때 base로 설치됨
+		
+		
+		6. Network Add-on Program (CNI : Container Network Interface)
+			: Container 간 통신 지원
+			: Add-on program
+			=> master node 구성할 때 base로 설치됨? (우리는 weeve net을 설치함)
+			
+			
+		7. kublet
+			: master에도 kubelet을 보유하지만 k8s의 운영환경을 위한 것 (worker node와 다른 역할)
+			
+			
+			
+		** 순서
+			1) API Component에게 요청이 들어옴
+				: 문법 및 권한 체크
+			
+			2) etcd에 저장된 Worker Node 정보 수집
+			
+			3) 해당 정보와 함께 API Component가 수신한 요청 정보를 scheduler에게 요청
+				
+			4) scheduler는 API Component로 부터 받은 etcd에 저장된 정보를 바탕으로
+				알맞는 worker node 선정 후 API Component에게 응답
+				
+			5) API Component는 선정된 Worker node의 kubelet에게 요청
+			
+			6) kubelet은 API Component로부터 수신한 요청을 docker 명령어로 변경 후 docker 데몬에게 요청
+		
+			7) 해당 요청이 container 실행이면
+				-> docker는 hub에서 실행하고자하는 image가 존재하는지 검색
+				-> 존재하면 pull 후 동작
+
+			8) Controller Component는 실행된 컨테이너의 갯수를 관찰
+			
+			9) 임의의 Worker Node Down 시, API Component에게 부족한 Container 실행 요청
+				-> 2)부터 반복
+		
+
+
+		
+	** Workder Node의 Component
+		- kubelet
+			- 모든 노드에서 실행되는 k8s 에이전트
+			- 데몬 형태로 동작
+			- CAdvisor 보유
+			
+			
+		- kube-proxy
+			- k8s의 network 동작을 관리
+			- iptables rule 구성
+			- 실제 K8s의 network 담당
+			
+			
+		- contaier runtime
+			- container를 실행하는 engine
+			- docker, containerd, runc
+				=> 우리는 docker 활용!
+
+
+
+
+
+
+
+
+
+
+
+
+# ==============================
+# ==============================
+# Pod LifeCycle
+# ==============================
+# ==============================
+	: https://kubernetes.io/ko/docs/concepts/workloads/pods/pod-lifecycle
+		
+				주체			행동								상태
+	------------------------------------------------------------------------------------------------------
+		사용자		K8S 명령	- Pod 실행					Pending
+	->	API			요청 문법검사						Pending
+	->	API	 		etcd에서 노드 정보 획득				Pending
+	->	API			Schduler에게 적합 노드 선정 요청			Pending
+	->	Scheduler		API에게 적합한 노드 선정 후 응답			Pending
+	->	API			선정 노드에게 Pod 실행 요청				Pending
+	
+	->	선정 노드		Pod 컨테이너 생성					ContainerCreating
+	
+	->	API			Pod 실행 중						Running
+	[->	API			Pod 실행 완료	후 종료				Succeeded	]
+	[->	API			Pod 실행 에러						Failed	]
+	
+	
+	->	사용자		K8S 명령	- Pod 종료					Terminating
+	->	API			Pod 종료	중						Terminating
+
+
+	
+	
+
+# ==============================
+# ==============================
+# livenessProbe를 이용해서 Self-healing Pod 만들기
+# ==============================
+# ==============================
+	
+## ========
+# Self Healing
+	container가 fail됬을 때 restart 하는 기능 (새롭게 image 받아서 container 실행)
+	=> 건강한 Container들로만 Service를 지원하겠다. (보장하겠다.)
+	
+	** Container 만 restart
+		- Pod는 그대로
+			=> IP 주소 동일
+			
+	** 부하가 큰 health check는 좋지 않다.
+	
+	
+	
+	
+## ========
+# livenessProbe
+	: Self-Healing 기능 안에 포함
+	
+
+
+
+
+## ========
+# 기본 vs LivenessProbe
+
+	- 기본
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:1.14
+------------------------
+
+
+	- Liveness Probe
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx-container
+    image: nginx:1.14
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+------------------------
+	=> 웹기반의 컨테이너에게 일정 주기로 HTTP Get 요청 (httpGet)
+		80포트의 /로 접속
+		=> 정상 응답 -> OK
+
+
+
+
+
+
+## ========
+# LivenessProbe 메커니즘 (유형)
+
+	- httpGet probe
+		: 지정한 IP 주소, port, path에 HTTP GET 요청을 보내, 해당 컨테이너가 응답하는지 확인
+			=> 반환코드가 200이 아닌 다른 값이 나오면 오류 => 컨테이너 재시작
+------------------------
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+------------------------
+
+	
+
+	- tcpSocket probe
+		: 지정한 포트에 TCP 연결을 시도. 연결되지 않으면 컨테이너 재시작
+------------------------
+    livenessProbe:
+      tcpSocket:
+        port: 22
+------------------------
+
+
+
+	- exec probe
+		: exec 명령을 전달하고 명령의 종료코드가 0이 아니면 컨테이너 다시 시작
+------------------------
+    livenessProbe:
+      exec:
+        command:
+        - ls
+        - /data/file
+------------------------
+		ls /data/file로 파일 존재 유무 파악
+
+
+
+
+
+## ========
+# LivenessProbe 매개 변수
+------------------------
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 15
+      periodSeconds: 20
+	  timeoutSeconds: 1
+	  successThreshold: 1
+	  failureThreshold: 3
+------------------------
+
+
+	- initialDelaySeconds
+		=> Pod 실행 n 초 후 체크 기동
+	
+	- periodSeconds
+		=> 체크 간격 (n초마다 체크하겠다.)
+	
+	- timeoutSeconds
+		=> 응답 대기 시간 (n초 후 응답 없으면 실패 처리)
+	
+	- successThreshold
+		=> 성공의 기준 (n번 연속해서 성공하면 성공으로 체크!)
+	
+	- failureThreshold
+		=> 실패의 기준 (n번 연속해서 실패하면 실패으로 체크!)
+		
+		
+		
+## ========
+# liveness 살펴보기
+	kubectl describe pod nginx-pod-liveness
+	
+	Liveness: ~~
+		- delay 	: pod가 Running 된 후 n초 후 health 체크 실행하겠다!
+			(initialDelaySeconds)
+		
+		- timeout	: 응답 대기 시간 (n초 후 응답 없으면 실패 처리)
+			(timeoutSeconds)
+		
+		- period	: health 체크 간격 (n초마다 health 체크하겠다.)
+			(periodSeconds)
+		
+		- #success	: 성공의 기준 (n번 연속해서 성공하면 성공으로 처리!)
+			(successThreshold)
+		
+		
+		- #failure	: 실패의 기준 (n번 연속해서 실패하면 실패으로 처리!)
+			(failureThreshold)
+			
+			
+
+
+
+
+
+
+
+# ==============================
+# ==============================
+# Pod - init container & infra container
+# ==============================
+# ==============================
+
+# init container
+	: main container를 실행하는데 필요로하는 환경세팅 또는 초기화 구성
+	
+		-> 한 pod 내부에서 init container가 실행되어야 main container가 실행
+			=> init container가 n개면 n개 모두 실행되어야 main container 실행
+	
+		ex> db 환경 세팅, db 접속 후 정보 전달, network 정상유무 확인, 다른 container 종속 시 체크 등
+		
+		=> kubectl get pods -o wide
+			명령어의 STATUS에서 init 컨테이너 성공 여부 확인 가능
+			
+	https://kubernetes.io/ko/docs/concepts/workloads/pods/init-containers/
+
+
+
+# infra container (pause)
+	
+	- pod 실행 시, 정의한 container 외에 pause라는 컨테이너가 존재
+		=> 다른 container와 같이 생성됨
+		=> pod마다 하나씩 생성
+		
+		
+	** pause container 역할
+		pod의 infra 관리 (pod의 IP나 hostname 등을 관리하고 생성) 
+		
+		
+	** 확인
+		kubectl run webserver --image=nginx:1.14 --port=80
+		
+		pod가 실행중인 node가서 docker ps 실행
+			=> 해당 pod 생성될 때 (동일 생성시간에) nginx 컨테이너가 아닌 다른 컨테이너 확인
+		
+		kubectl delete pod webserver
+		
+		pod가 실행중인 node가서 docker ps 실행
+			=> 해당 컨테이너도 같이 삭제
+			
+
+
+
+
+# ==============================
+# ==============================
+# Pod - static Pod(feat. kubelet daemon)
+# ==============================
+# ==============================
+	
+	- Pod를 Control-plane에 요청하여 생성하지 않고
+		특정 Node에 직접 생성
+		
+		
+	- static Pod 생성/삭제
+		- Control-Plane의 API 에게 요청 X
+		- 특정 Node의 Static Pod Directory에 Yaml 파일 생성(/삭제) -> Kubulet 데몬이 자동 생성(/삭제)
+		
+		=> 각 Node의 Kubelet 데몬에 의해 생성
+		
+		
+	- static Pod Directory
+		- vi /var/lib/kubelet/config.yaml
+			=> 확인 및 수정 ("staticPodPath: ")
+			=> Directory 위치 수정 시, kubelet 재시작 필수 (systemctl restart kubelet)
+			
+		- 일반적으로 /etc/kubernetes/manifests/ 디렉토리
+		
+		
+# Master Node의 static Pod 보기
+	
+	cd /etc/kubernetes/manifests/
+	
+	ls
+		- etcd
+		- kube-apiserver
+		- kubel-controller-manager
+		- kube-scheduler
+		
+		=> master Node가 실행되려면 반드시 실행되어야 하는 컨테이너들은 static Pod로 실행되어 있음 확인
+		
+		
+		
+		
+		
+
+# ==============================
+# ==============================
+# Controller
+# ==============================
+# ==============================
+
+# Controller 란?
+	- Pod의 개수를 보장 (비유 : Orchestra의 지휘자)
+	
+	
+	요청 -> API -> etcd -> API (with Data) -> scheduler
+	-> API -> Controller에게 해당 Pod 갯수 보장 요청 -> API -> 선정 Node -> 선정 Node Pod 생성
+	
+	
+	=> Controller는 보장 요청 받은 Pod가 죽었을 경우 바로 API에게 Pod 생성 요청!
+		-> API -> etcd -> scheduler -> 선정 Node(이전과 다른 Node일 수 있음)에 죽은 pod 재생성
+		
+		
+		
+	
+# Controller 종류
+	1) Replication Controller
+		: Controller의 가장 Basic한 구조
+			=> Rolling Update를 지원 안함
+		
+	2) ReplicaSet
+		: Replication Controller 부족한 면 보완
+			=> Replication의 Selector를 보다 다양하게 활용!
+			=> Rolling Update를 지원 안함
+	
+	3) Deployment
+		: ReplicaSet을 이용한 Controller
+			=> Rolling Update를 지원 *
+	
+	4) Daemon Set
+		: Node 한 개당 한개의 Pod 제공 (Log agent, Monitoring agent)
+		
+	5) Stateful Sets
+		: 상태 보장 Controller (이름(Number) 보장 - 상세 보기)
+	
+	6) Job
+		: 배치 처리 Controller
+		
+	7) Cronjob
+		: 스케줄링과 Job을 이용		
+		
+		
+		
+		
+		
+
+# ==============================
+# ==============================
+# Controller - ReplicationController
+# ==============================
+# ==============================
+# Replication Controller (rc)
+	- 요구하는 Pod 갯수 보장 (selector, replicas)
+		- Pod 개수 부족		=> template을 이용하여 Pod 추가
+		- Pod 개수 초과		=> 최근에 생성된 Pod 삭제
+	
+	- 기본 구성
+		- selector
+			: Key-Value의 구조로 Label. 해당 Key-Value를 가지고 있는 Pod의 갯수 보장
+		- replicas
+			: 보장 갯수
+		- template
+			: 특정 Label(selector)의 Pod 갯수(replicas)가 부족하면 사전에 지정한 Pod Template(template)을 참고하여 Pod를 새로 생성
+		
+	- 예시
+		kubectl create rc exam --image=nginx:1.14 --replicas=3 --selector=app=webui
+			=> "app: webui" Label Pod를 3개 보장
+
+
+
+----------------------------
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: rc-nginx
+spec:
+  replicas: 3
+  selector:
+    app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui			# 반드시 select의 label과 동일하게 해야 적용 가능! (없으면 실행 안됨!) (label이 selector 정의된 것 포함 더 많으면 상관 없음)
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+----------------------------
+
+		kubectl run redis --image=redis --labels=app=webui --dry-run -o yaml > redis.yaml
+		
+		vi redis.yaml
+			=> labels: 확인!
+		
+		kubectl get pods --show-labels
+			=> app=webui가 3개 실행 확인
+			
+		
+		kubectl create -f redis.yaml
+			=> 실행 안됨!!
+				(Label의 갯수가 보장되어 있기 때문에!)
+				=> Controller가 동일 Label의 최근 생성 Pod 삭제!
+		
+		kubectl edit rc rc-nginx
+			=> replicas 4로 변경!
+			=> wq
+			=> Template을 참고하여 Pod 갯수 바로 적용!
+			
+		kubectl get pods -o wide
+		
+		
+		kubectl scale rc rc-nginx --replicas=2
+			=> 명령어로도 바로 가능!
+			=> 최근 실행 Pod 삭제!
+			
+			
+		kubectl edit rc rc-nginx
+			=> template의 image의 버전을 nginx:1.15로 변경!
+			=> wq
+			=> 바로 적용 안됨!!!
+			=> Controller는 Selector만 본다!!! (Pod 갯수가 되어 있으면 죽여서 업데이트 하지 않는다!!!!!)
+			
+		
+		kubectl delete pod rc-nginx-{실제 Pod hash값}
+			=> Controller에 의해 새로 생성되는 Pod는 nginx:1.15 버전으로 생성! (서비스 운영 중 버전 업데이트 : rolling update)
+			=> 배포에는 적합하지 않은 것으로 보여짐!
+			
+			
+			
+			
+
+# ==============================
+# ==============================
+# Controller - ReplicaSet
+# ==============================
+# ==============================
+		: ReplicationController와 동일하게 Pod의 갯수를 보장
+			+ 풍부한 Selector 지원!
+			
+			
+	- 기본 구성
+		- replicas
+		- template
+		- selector
+			- matchLabels
+			- matchExpressions
+			
+			
+	- matchExpressions operator 기본 구성
+		- In
+		- NotIn
+		- Exists
+		- DoesNotExists
+	
+	
+			
+			
+	- ReplicationConroller vs ReplicaSet
+	
+	
+	
+----------------------------
+# [ReplicationController]
+apiVersion: apps/v1 # 항상 버전은 kubectl explain [Object]로 살펴보고 그에 따라 적용
+kind: ReplicationController
+metadata:
+  name: rc-nginx
+spec:
+  replicas: 3
+  selector:
+    app: webui
+	version: "2.1"		# Label이 2개 일 경우, And 조건으로 두개 모두 맞아야한다!
+  template:
+    ...
+----------------------------
+
+
+
+----------------------------
+# [ReplicaSet]
+apiVersion: apps/v1 # 항상 버전은 kubectl explain [Object]로 살펴보고 그에 따라 적용
+kind: ReplicaSet
+metadata:
+  name: rs-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+      version: "2.1"
+    matchExpressions:
+    - {key: version, operator:In, value:["2.1", "2.2"]}		# Label 마다 조건을 명시할 수 있다. (Replication Controller와 다름)
+					# => version의 value가 "2.1" 또는 "2.2"만 가능!
+  template:
+    ..
+----------------------------
+
+
+
+	** operator
+		In	
+			matchExpressions:
+			- {key: version, operator:In, value:["2.1", "2.2"]}
+							# => version의 value가 "2.1" 또는 "2.2"만 가능!
+							
+		NotIn			
+			matchExpressions:
+			- {key: version, operator:NotIn, value:["2.1", "2.2"]}
+							# => version의 value가 "2.1" 또는 "2.2"이 아니어야한다!
+							
+		Exists			
+			matchExpressions:
+			- {key: version, operator:Exists}
+							# => version의 value가 존재 해야한다!
+							
+		DoesNotExists			
+			matchExpressions:
+			- {key: version, operator:DoesNotExists}
+							# => version의 value가 존재 하면 안된다!
+							
+	
+	
+	- 실습
+		kubectl delete rc rc-nginx
+		
+		vi rs-nginx.yaml
+
+
+
+----------------------------
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+----------------------------
+	
+		kubectl create -f rs-nginx.yaml
+		
+		kubectl get pod --show-labels
+		
+		kubectl get replicaset
+		
+		kubectl get rs
+		
+		kubectl delete pod rs-nginx-{hash 값}
+			=> 삭제 후 ReplicaSet이 갯수 보장으로 Pod 생성하는지 확인
+		
+		kubectl get pods -o wide
+		
+		kubectl scale rs rs-nginx --replicas=2
+			=> 최근 실행 pod 삭제
+			
+		kubectl delete rs rs-nginx --cascade=false
+			=> "kubectl delete rs rs-nginx"  :  ReplicaSet과 Pod 모두 삭제!
+			=> Controller만 삭제 하고싶다? ("--cascade=false")
+			
+		kubectl get rs 
+			=> 없음!
+		
+		kubectl get pods --show-labels
+			=> pod는 존재, Controller가 없는 단독 Pod로 변경됨!
+			
+		
+		vi rc-nginx.yaml
+
+
+
+----------------------------
+apiVersion: apps/v1
+kind: ReplicationController
+metadata:
+  name: rc-nginx
+spec:
+  replicas: 3
+  selector:
+    app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+----------------------------
+
+		kubectl create -f rc-nginx.yaml
+		
+			=> replicas의 값이 3 이므로, 1개 Pod 추가
+				+ 기존 label에 해당하는 Pod는 해당 ReplicationController가 제어하기 시작
+					(기존에 존재하는 특정 label의 Pod가 다른 프로그램이라도 해당 Label은 동일하게 관리 시작!)
+					
+				=> Label과 Selector를 잘 지정해야한다!
+
+
+
+
+
+# ==============================
+# ==============================
+# Controller - Deployment
+# ==============================
+# ==============================
+
+	- Deployment 생성 원리
+		- Deployment 1개 생성 -> ReplicaSet 1개 생성 -> ReplicaSet Pod 수 보장
+
+--------
+# [ReplicaSet]
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: rs-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+--------
+
+--------
+# [Deployment]
+apiVersion: apps/v1
+kind: Deployment		# kind만 다름
+metadata:
+  name: deploy-nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+--------
+
+
+
+
+# Deploy 명명
+	- Deploy		: {Deployment name}
+	- ReplicaSet	: {Deployment name}-{ReplicaSet Hash}
+	- Pods			: {Deployment name}-{ReplicaSet Hash}-{Pod Hash}
+	
+	=> kubectl get rs => rs 존재 (Deploy로부터 생성됨)
+
+
+
+# Deploy로 인해 생성된 ReplicaSet 지울 때
+	kubectl delete rs {ReplicaSet 이름}
+		=> 해당 ReplicaSet에 종속된 Pod 제거
+		=> Deployment가 ReplicaSet을 관리
+		=> ReplicaSet 재생성 (같은 이름으로 ReplicaSet 생성하는 듯)
+			=> 새로 생성된 ReplicaSet이 Pod 재생성
+
+
+
+
+
+# deployment rolling update
+	- Rolling Update
+			
+		kubectl create -f deployment-exam1.yaml --record
+		kubectl rollout history deployment app-deploy
+			: 이전 업데이트 기록 확인
+	
+		kubectl set image deployment {Deploy 이름} {Container 이름}={새로운 버전 이미지}		
+			ex1> kubectl set image deployment app-deploy app=nginx:1.15 --record
+				** --record : 업데이트 내역 기록
+			
+		kubectl rollout status deployment app-deploy
+			=> 현재 업데이트 상태 정보 표시 (실시간으로 보여줌)
+		
+		kubectl rollout pause deployment app-deploy
+			=> Rolling Update 중 실행
+			=> 어떻게 Rolling Update가 진행 중인지 모니터링 할 때 활용
+			
+		kubectl rollout resume deployment app-deploy
+			=> Pause 되었던 Rolling Update 다시 재개
+	
+		=> 새로운 ReplicaSet 생성
+			-> 새로운 ReplicaSet의 Pod 하나 생성
+			-> 기존 ReplicaSet의 Pod 하나 제거
+			-> 새로운 ReplicaSet의 Pod 하나 생성
+			-> 기존 ReplicaSet의 Pod 하나 제거
+			-> ...
+			
+			=> Pod 하나씩 업데이트 할 건지는 설정에 따라 다름
+			
+			
+			
+	- Rollback
+		
+		kubectl rollout history deployment {Deploy 이름}
+		
+		kubectl rollout undo deploy {Deploy 이름}
+			=> 바로 전단계(History 상의 현재 지전 Reivision)로 rollback
+			=> Reivision은 계속 올라감
+		
+		kubectl rollout history deployment app-deploy
+			=> 이전 명령어 실행 후 바로 전 Reivision이 최신 Reivision으로 그대로 이동!
+			=> Reivision은 계속 올라감
+		
+		kubectl rollout undo deployment app-deploy --to-revision=3
+			=> 해당 revision으로 이동!
+			
+			
+			
+	- Rolling Update with Yaml file
+		vi deployment-exam2.yaml
+		
+----------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deploy
+  annotations:										# Kubernetest의 동작방식을 세분화
+    kubernetes.io/change-cause: version 1.14		# History가 해당 value로 기록이 된다!
+spec:
+  progressDeadlineSecondes: 600						# 10분동안 업데이트를 진행하지 못하면 방금 전 실행한 Update를 취소시키겠다.
+  revisionHistoryLimit: 10							# History 제한 갯수
+  strategy:											# 
+    rollingUpdate:									#
+      maxSurge: 25%									# replicas의 25%의 반올림(?) 갯수 => 업데이트를 한번에 진행하는 Pod 수 		=> 해당 수치가 크면 빨리 업데이트가 진행됨!!
+      maxUnavailable: 25%							# replicas의 25%의 반올림(?) 갯수 => 기존의 Pod가 한번에 삭제되는 수 			=> 해당 수치가 크면 기존 Pod 빨리 삭제
+    type: RollingUpdate								#
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.14
+        ports:
+        - containerPort: 80
+----------------------------
+		
+		kubectl apply -f deployment-exam2.yaml
+		
+		
+		
+		vi deployment-exam2.yaml
+		
+----------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deploy
+  annotations:
+    kubernetes.io/change-cause: version 1.15		# 업그리에드
+spec:
+  progressDeadlineSecondes: 600
+  revisionHistoryLimit: 10
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.15							# 업그레이드
+        ports:
+        - containerPort: 80
+----------------------------
+
+
+		
+		kubectl apply -f deployment-exam2.yaml
+			=> 바로 Rolling update!
+		
+		
+		kubectl describe pod {pod 이름}
+			=> 버전 확인
+			
+			
+		kubectl rollout history deployment deploy-nginx
+			=> 정리된 버전 이력 조회 가능!
+		
+		
+		** yaml 파일을 이용한 rolling update 장점
+			1) 버전 history 깔끔
+			2) 현재 실행 중인 버전의 정보를 yaml 파일에서 확인 가능
+			
+		
+		kubectl delete deployments.app deploy-nginx
+
+
+
+
+# ==============================
+# ==============================
+# apply vs create
+# ==============================
+# ==============================
+
+Those are two different approaches:
+
+[Imperative Management]
+	kubectl create is what we call Imperative Management. On this approach you tell the Kubernetes API what you want to create, replace or delete, not how you want your K8s cluster world to look like.
+
+[Declarative Management]
+	kubectl apply is part of the Declarative Management approach, where changes that you may have applied to a live object (i.e. through scale) are "maintained" even if you apply other changes to the object.
+
+You can read more about imperative and declarative management in the Kubernetes Object Management documentation.
+
+In laymans They do different things. If the resource exists, kubectl create will error out and kubectl apply will not error out.
+
+
+
+
+# ==============================
+# ==============================
+# Controller - DaemonSet
+# ==============================
+# ==============================
+	- 노드당 한개씩 Pod 보장
+		=> 새로 Node가 추가되면 그 Node에도 Pod 생성
+		=> 기존 Node가 삭제 되면그 Node의 Pod도 삭제
+		
+		=> 특정 Node의 Pod에 문제가 생성 -> 삭제가 될때까지 대기 -> 삭제되면 Pod 재생성
+		
+	
+	- Rolling Update 지원!
+		
+	
+	- ex> Log Agent, Monitoring Agent, ...
+	- Kubernetes에서 내부적으로 사용하는 kubeproxy, CNI Network 등은 DaemonSet에 의해 실행되고 있음
+	
+	
+	- ReplicaSet에서 kind를 "DaemonSet으로 변경 후 spec.replicas를 없애면 DaemonSet이 된다!!
+	
+---------
+# [DaemonSet]
+apiVersion: apps/v1
+kind: DaemonSet				#
+metadata:
+  name: daemonset-nginx
+spec:
+							# DaemonSet은 Node 당 1개이기 때문에 필요 없음!
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+---------
+	
+	
+# DaemonSet Rolling update
+	kubectl edit daemonsets.apps daemonset-nginx
+	kubectl rollout history ds daemonset-nginx
+	kubectl rollout undo ds daemonset-nginx
+
+
+
+
+
+# ==============================
+# ==============================
+# Controller - StatefulSet
+# ==============================
+# ==============================
+	- Pod의 상태를 유지해주는 컨트롤러
+		-> Pod Name
+		-> Pod Volume(Storage)
+		
+	- Rolling Update 지원
+		
+	- 타 Controller에 의해 생성된 Pod 이름
+		- {controller 이름}-{임의의 hash 값}
+		
+	- StatefulSet에 의해 생성된 Pod 이름
+		- {controller 이름}-{순차번호}
+		-> Scale Out 시, 0부터 순차적으로 증가
+		-> Scale In 시, 최대 숫자 이름부터 순차 제거
+		
+		=> 문제되는 Pod가 있을 경우, 완전히 삭제가 되면, 같은 이름의 Pod 생성 (Node는 달라질 수 있음)
+		
+		
+	- ReplicaSet에서 kind를 "StatefulSet"으로 변경 후,
+		'spec.serviceName', 'spec.podManagementPolicy' 추가 (spec.podManagementPolicy은 default 값 있음)
+		
+---------
+# [StatefulSet]
+apiVersion: apps/v1
+kind: StatefulSet						#
+metadata:
+  name: sf-nginx
+spec:
+  replicas: 3
+  serviceName: sf-nginx-service			# 꼭 명시
+#  podManagementPolicy: OrderedReady	# (Default) Pod 생성 시, 순차적으로 생성!
+#  podManagementPolicy: Parallel			# Pod 생성 시, 한번에 생성 (삭제도?)
+  selector:
+    matchLabels:
+      app: webui
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+       app: webui
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:1.14
+---------
+		
+		
+# StatefulSet Rolling update
+
+	kubectl edit statefulsets.apps sf-nginx
+		=> image 버전 수정 하기
+		=> :wq
+	
+	watch kubectl get pods -o wide
+		=> 뒤에서 부터 하는듯
+		
+	kubectl rollout history statefulsets.apps sf-nginx
+	kubectl rollout undo statefulsets sf-nginx
+
+
+
+
+# ==============================
+# ==============================
+# Kubernetes의 기본 성질
+# ==============================
+# ==============================
+	=> Pod가 종료가 되면 Restart 한다.
+	=> 배치 처리에 비적합
+		=> "Job Controller" or "CronJob"
+	
+	kubectl run testpod --image=centos:7 --comand sleep 5
+		=> 5초 후 종료
+			=> Kubernestes는 Pod가 종료되면 Restart 한다. (오류가 있어도 Restart)
+	
+	kubectl get pods --watch 
+		=> Running 5 초 후 종료 -> 몇 번 후 중간에 대기기간이 생김 (CrashLoopBackOff)
+	
+
+
+
+
+# ==============================
+# ==============================
+# Controller - Job Controller
+# ==============================
+# ==============================
+	- 배치 처리에 적합
+	- Batch 처리하는 Pod는 작업이 완료되면 종료
+		-> Pod의 성공적인 완료를 보장
+			- 비정상 종료시 다시 실행
+			- 정상 종료시 완료
+			
+---------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-example
+spec:
+# completions: 5						# 5번 완료 시키겠다
+# parallelism: 2							# 한번에 2개씩 실행하겠다!!
+# activeDeadlineSeconds: 5 		# 5초안에 Pod가 Completed 되지 않으면 강제로 Completed로 시키겠다!
+  template:
+    spec:
+      containers:
+      - name: centos-container
+        image: centos:7
+        command: ["bash"]
+        args:
+        - "-c"
+        - "echo 'Hello World"; sleep 50; echo 'Bye'"
+      restartPolicy: Never
+#      restartPolicy: OnFailure		# Container 비정상 종료 시, 해당 Container(Pod 아님) Restart
+#  backoffLimit: 3						# 3번 실패하면 Job 삭제! # backoffLimit 횟수만큼 컨테이너를 재시작 후 완전히 삭제 # OnFailure와 함께 활용
+---------
+
+	kubectl create -f job-exam.yaml
+	kubectl delete pod {pod 이름}
+		=> 비정상 종료
+	watch kubectl get pods -o wide
+		=> 다시 시작 확인
+	kubectl get jobs
+	watch kubectl get pods
+		=> 50초 후 Completed 확인
+		=> Pod가 삭제 되지 않음!
+			=> Pod안 Container의 로그 및 종료 상태 등의 정보 확인 가능!
+	kubectl delete job centos-job
+	
+	
+
+
+
+# ==============================
+# ==============================
+# Controller - CronJob
+# ==============================
+# ==============================
+	: 사용자가 원하는 시간에 JOB 실행 예약 지원
+		- Job의 컨트롤 기능 포함 (JOB 보유 및 제어)
+		
+		
+	- Job Controller로 실행할 Application Pod를 주기적으로 반복해서 실행
+	- Linux의 cronjob의 스케줄링 기능을 Job Controller에 추가한 API
+	- ex>
+		- Data Backup
+		- Send Email
+		- Cleaning Tasks
+		
+		
+	- Cronjob Schedule : "{분 : 0-59} {시 : 0-23} {일 : 1-31} {월 : 1-12} {요일 : 0-6}"
+	
+		- 매월 1일 아침 9시 정각
+			: 0 9 1 * *
+		
+		- 매주 일요일 새벽 3시
+			: 0 3 * * 0
+			
+		- 주중 새벽 3시
+			: 0 3 * * 1-5
+			
+		- 주말 새벽 3시
+			: 0 3 * * 0,6
+		
+		- 5분 마다
+			: */5 * * * *
+			
+		- 매분 마다
+			: * * * * *
+		
+		- 2시간 마다 정각
+			: 0 */2 * * *
+			
+		- 매월 1일, 15일 3시간마다 정각
+			: 0 */3 1,15 * *
+			
+			
+----------
+[CronJob Definition]
+apiVersion: batch/v1/beta		# 현재는 다를 수 있음 ("kubectl version --short" 확인 후 사용)
+kind: CronJob
+metadata:
+  name: centos-cronjob
+spec:							#
+  schedule: "0 3 1 * *"			#
+#  startingDeadlineSeconds: 300	# 300초 안에 jobTemplate으로 정해진 App이 실행안되면 취소 시키겠다.
+  concurrencyPolicy: Allow		# (기본값 : Allow) 동시 실행 가능 (Async)
+#  concurrencyPolicy: Forbid	# 동시 실행 불가 (앞 실행 작업 완료 후 가능 : 그 다음 턴에 가능한듯)
+  successfulJobsHistoryLimit: 3	# (기본값 : 3) 성공한 작업의 히스토리는 3개만 남긴다! (나머지 삭제)
+  jobTemplate:					#
+  spec:
+    template:
+      spec:
+        containers:
+        - name: centos-container
+          image: centos:7
+          command: ["bash"]
+          args:
+          - "-c"
+          - "echo 'Hello World"; sleep 5; echo 'Bye'"
+        restartPolicy: Never
+#        restartPolicy: OnFailure
+----------
+			
+			
+	kubectl get cronjob -o yaml
+	kubectl delete cronjob cron-job-exam
+	
+			
+			
+
+
+
+# ==============================
+# ==============================
+# Kubernetes Service	
+# ==============================
+# ==============================
+	: Kubernetes Network
+		
+	
+	ex> Deployment로 Pod가 3개 생성
+		=> 각 Pod마다 고유 ip가 다르다.
+		=> 하나의 Pod만 사용하지 않도록 IP를 묶어서(하나의 Virtual IP : 단일 진입점) 관리!
+		=> Service!
+		
+		=> 동일한 서비스를 제공하는 Pod 그룹의 단일 진입점 제공
+		=> Pod의 Label로 묶어서 관리!
+		=> 해당 Pod들의 IP를 대표하는 Virtual IP (또는 Load Balancer IP) 생성
+		
+	** Cluster IP : Virtual Load Balancer IP (단일 진입점)
+		ex> 10.96.0.0/12
+
+------------
+# [Service]
+apiVersion: v1
+kind: Service
+metadata:
+  name: webui-svc
+spec:
+  clusterIP: 10.96.100.100		# 생략가능 (생략하면 임의 IP) 포트는 아래 cluster Port
+  selector:
+    app: webui					# label 지정
+  ports:
+  - protocol: TCP
+    port: 80					# cluster Port
+    targetPort: 80				# Pod Port
+------------
+
+
+
+
+# ==============================
+# ==============================
+# Kubernetes Service Type : 4가지
+# ==============================
+# ==============================
+
+	1) ClusterIP (default)
+		- Pod 그룹의 단일 진입점(Virtual IP) 생성
+		- Virtual IP로 요청 시, Load Balancing 역할 수행하여 각 Pod에 분배
+		
+	2) NodePort
+		=> Node Port안에 ClusterIP가 포함
+			- ClusterIP 생성
+			- 각 Worker Node들의 Port가 Open! (각 Node의 같은 포트!)
+				=> 외부에서 접근할 수 있는 모든 Node의 Port가 열리는 거임!
+			
+		- ClusterIP가 생성된 후
+			모든 Worker Node의 외부에서 접속 가능 한 포트가 예약
+			=> 각 Node의 해당 Port로 요청 시, 해당 Label의 Pod로 Load Balancing 역할 수행
+		
+	3) LoadBalancer
+		=> Load Balancer 안에 NodePort 포함
+			- ClusterIP 생성
+			- 각 Worker Node들의 Port가 Open! (각 같은 포트!)
+			- Kubernetes 밖의 실제 LB 장비와 각 Worker Node의 Open 포트(Node Port)와 연결!
+				=> 클라우드 인프라스트럭처(AWS, Azure, GCP 등)나 오픈스택 클라우드에서만 적용 가능!
+
+		- 클라우드 인프라스트럭처(AWS, Azure, GCP 등)나 오픈스택 클라우드에 적용
+		- LoadBalancer를 자동으로 프로 비전하는 기능 지원
+
+	4) ExternalName
+		- Load Balancing 또는 Cluster의 서비스를 해주는 것이 아님
+		- Naming Service를 지원 => K8s 내부의 DNS
+			Kubernetes Cluster 안에서 활용할 Naming Service
+		
+		- 클러스터 안에서 외부에 접속 시 사용할 도메인을 등록해서 사용
+		- 클러스터 도메인이 실제 외부 도메인으로 치환되어 동작
+	
+		- ex>
+			1) ExternalName으로 google.com을 입력
+			2) Pod(cluster) 내부에서 설정 도메인을 입력하면 google.com으로 변경되어 외부 통신을 할 수 있다.
+
+
+
+
+# ==============================
+# ==============================
+# Service - ClusterIP
+# ==============================
+# ==============================
+	- selector의 label이 동일한 Pod들을 그룹으로 묶어
+	- 단일 진입점 (Virtual IP) 생성
+	- 클러스터 내부에서만 사용 가능
+		=> 내부 통신용!!!!
+	- type 생략 시, default 값으로 10.96.0.0/12 범위에서 자동으로 할당됨 (IP 고정 가능)
+		=> 보통 자동 할당 기능을 활용 => 충돌 예방을 위해!
+
+
+------------
+# [Service : ClusterIP]
+apiVersion: v1
+kind: Service					#
+metadata:
+  name: clusterip-service
+spec:
+  type: ClusterIP				#
+  clusterIP: 10.100.100.100		# 생략시 랜덤
+  selector:
+    app: webui
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+------------
+ex>
+	kubectl create -f clusterip-nginx.yaml
+	kubectl get svc
+	
+	curl 10.100.100.100
+			=> 여러번 하여 어떤 Pod가 호출되는지 살펴보기
+			=> Round-Robin 방식으로 돌아가서면서 호출하는게 아니라 랜덤하게 iptables가 backend에서 분산
+				=> 횟수가 많으면 균등하게 호출하는 구조
+				
+	kubectl describe svc clusterip-service
+	kubectl delete svc clusterip-service
+	kubectl delete service --all
+		=> kubernetes service는 자동으로 다시 생성됨
+
+
+
+
+
+# ==============================
+# ==============================
+# Service - NodePort
+# ==============================
+# ==============================
+	- 모든 Node를 대상으로 외부 접속 가능한 Port를 예약
+		=> 외부에서 접근할 수 있는 모든 Node의 Port가 열리는 거임!
+		=> 각 Node의 해당 Port에 접속 시, 해당 Label을 갖는 Pod로 Load Balancing
+		=> 외부/내부 통신용!!!!
+		
+	- Default NodePort 범위 : 30,000 - 32,767
+	
+	- ClusterIP를 생성 후 NodePort를 예약
+		=> ClusterIP + 외부 접속
+	
+	
+----------------------------
+# [Service : NodePort]
+apiVersion: v1					#
+kind: Service
+metadata:
+  name: nodeport-service
+spec:
+  type: NodePort				#
+  clusterIP: 10.100.100.200		# 생략시 랜덤
+  selector:
+    app: webui
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30200				# 생략시 랜덤
+----------------------------
+
+ex>
+	kubectl create -f nodeport-nginx.yaml
+	kubectl get svc
+	
+	curl 10.100.100.200
+	curl node1.example.com:30200
+		=> node1로 요청해도 node2에 있는 Pod 호출 가능! (NodePort)
+	curl node2.example.com:30200
+		=> node1이든 node2이든 Load Balancing은 동일
+	
+	kubectl describe svc nodeport-service
+	kubectl delete svc nodeport-service
+
+
+
+
+
+# ==============================
+# ==============================
+# Service - LoadBalancer
+# ==============================
+# ==============================
+	=> NodePort + LoadBalancer 지원
+
+	- 사실 LB 장비 없이 우리가 구현할 수 없음
+		=> Public Cloud에서 운영 (Private Cloud 환경 아님)
+		=> "우리는 해당 NodePort를 갖고 있는 시스템이 있는데 해당 NodePort에 연결할 수 있는 외부 LB 장비 Setting 좀 해줄 수 있겠어?" 라고 Public Cloud에 요청
+			-> 요청을 받은 Public Cloud는 외부 LoadBalancer의 IP 주소를 공유해주고, 실제로 연결이 되도록 구현해준다.
+			-> 외부 LoadBalancer IP로 요청을 받으면, LB는 각 Node에게 Load Balancing 하여 요청한다.
+			-> 각 Node는 또 자체로 해당 Label을 갖는 Pod로 재분배
+		
+	- Public Cloud (AWS, Azure, GCP 등)에서 운영 가능
+	- LoadBalancer를 자동으로 구성 요청
+	- NodePort를 예약 후 해당 nodeport로 외부 접근을 허용
+	
+	
+----------------------------
+# [Service : LoadBalancer]
+apiVersion: v1
+kind: Service					#
+metadata:
+  name: loadbalancer-service
+spec:
+  type: LoadBalancer
+  clusterIP: 10.100.100.250		# 생략시 랜덤
+  selector:
+    app: webui
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30200				# 생략시 랜덤
+----------------------------
+
+	kubectl create -f loadbalancer-nginx.yaml
+
+	kubectl get svc
+		=> EXTERNAL-IP 자리가 pending으로 되어 있음
+			=> Public Cloud 였으면 해당 부분에 외부 LoadBalancer 장비 IP 주소가 고정되게 된다!
+			
+	kubectl delete service --all
+
+
+
+
+# ==============================
+# ==============================
+# Service - ExternalName
+# ==============================
+# ==============================
+	=> DNS를 지원
+	
+	- Cluster 내부에서 외부(external)의 Domain 설정
+		=> 마치 Pod 내부에서 동작하는 /etc/hosts 파일 같은 기능
+		
+----------------------------
+# [Service : ExternalName]
+apiVersion: v1
+kind: Service					#
+metadata:
+  name: externalname-svc
+spec:
+  type: ExternalName			#
+  externalName: google.com		# externalName으로 쓰고 싶은 외부 도메인
+----------------------------
+
+ex>
+	kubectl create -f externalname.yaml
+	
+	kubectl get svc
+		=> CLUSTER-IP 항목은 비어있다 (단일 진입점 같은 기능 없기 때문)
+		=> EXTERNAL-IP 항목에 대상 도메인 확인
+	
+	kubectl run testpod -it --image=centos:7
+		/# curl externalname-svc.default.svc.cluster.local
+			=> "externalname-svc"는 Service 이름
+			=> "default.svc.cluster.local"는 Kubernetes가 내부적으로 사용하는 Domain 이름
+			=> 지정 externalName으로 통신하는지 확인
+			
+		/# exit
+	
+	kubectl delete pod testpod
+	kubectl delete svc externalname-svc
+
+
+
+
+# ==============================
+# ==============================
+# Service - Headless Service
+# ==============================
+# ==============================
+	- (ClusterIP / NodePort / LoadBalancer / ExternalName)과 다름!
+	
+	- ClusterIP가 없는 서비스로 단일 진입점이 필요 없을 때 사용
+		=> 단일 진입점을 만들기는 하지만 IP 주소 할당을 안함
+		=> EndPoints를 묶기는 하겠다!
+	
+	- Service와 연결된 Pod의 endpoint로 DNS 레코드가 생성됨
+		=> 각 EndPoints의 DNS 레코드를 K8S의 CoreDNS에 등록시킨다!
+			=> Pod에 대한 EndPoints를 DNS resolving Service로 요청 가능!
+	
+	- Pod의 DNS 주소 : pod-ip-addr.namespace.pod.cluster.local
+					(pod의 ip주소).(사용하는 namespace).(pod).cluster.local
+	
+	
+	** Headless Service의 목적
+		=> Pod들의 endpoint가 DNS Resolving Service를 받을 수 있도록 지원해주는 것!
+		=> DNS Record를 구성해주는 것 때문에 Headless Service를 사용한다!
+		
+		
+
+----------------------------
+# [Service : HeadlessService]
+apiVersion: v1
+kind: Service
+metadata:
+  name: headless-service
+spec:
+  type: ClusterIP				# Type은 ClusterIP든 다른 것이든 상관 없는 듯 하다
+  clusterIP: None				# clusterIP를 None으로 지정하면 된다! (반면에 없으면 랜덤값으로 한다)
+  selector:
+    app: webui
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+----------------------------
+
+	
+ex>
+	kubectl create -f headless-nginx.yaml
+	kubectl get svc
+	
+	kubectl describe svc headless-service
+		=> Endpoints에 해당 Pod IP 묶여 있는거 확인
+		=> IP는 없는 것 확인
+	
+	Pod Endpoint DNS 서비스 조회
+	kubectl run testpod -it --image=centos:7 /bin/bash
+	
+		/# cat /etc/resolv.conf
+			=> 나의 DNS 서버가 누군지 확인
+			
+			nameserver 10.96.0.10
+			search default.svc.cluster.local svc.cluster.local cluster.local node2.example.com
+			options ndots:5
+
+			=> 여기서 nameserver의 값, "10.96.0.10"이 CoreDNS의 IP Address
+			
+			
+		/# curl (deploy의 한 Pod IP (구분자 '.'이 아니라 '-')(kubectl get pods에서 나오는 pod ip)).default.pod.cluster.local
+		
+			=> 해당 Pod와 연결 시켜주는 Resolving Service를 Core DNS가 지원해준다!
+			
+			
+	Headless Service는 Pod의 이름이 자주 바뀌지 않는 StatefulSet에 유용하게 쓰일 수 있다.
+
+
+
+
+
+# ==============================
+# ==============================
+# Service - kube-proxy
+# ==============================
+# ==============================
+	=> kube-proxy는 실제 K8s에서 service를 연결해주는 것은 아니다.
+		=> 실제 Kubernetes Service를 구현해주는 Backend 동작 시스템(/플랫폼)
+	
+	- Kubenetes Service의 backend 구현
+	- endpoint 연결을 위한 iptables 구성
+	- nodePort로의 접근과 Pod 연결을 구현 (iptables 구성)
+	
+	
+	kubectl get pods -o wide --all-namespaces
+		=> proxy가 각 Pod(Control Plane 포함)에서 동작중을 확인 할 수 있다.
+		
+		
+	Service를 생성을 요청하면 kube-proxy가 동작을 한다.
+		각 Node의 kube-proxy는 해당 Node의 iptables에 Rule 생성하여 ClusterIP(/NodePort)로 들어오는 요청을 LoadBalancing할 수 있게 한다.
+		
+		
+	[node1 SSH]
+		iptables -t nat -S | grep 80
+		=> 각 Pod의 IP와 ClusterIP를 확인 할 수 있다.
+		
+		=> ClusterIP로 요청하면 각 Pod IP로 접근할 수 있도록 만드는 것이 kube-proxy이다 !
+		
+		
+		
+	** Kube-proxy가 하는일 크게 2가지로 정리
+		1. Service를 생성하면 ClusterIP에 대한 iptables Rule 생성
+		
+		2. Service를 생성하면 NodePort를 Listen 하고 있다!
+			=> Client가 해당 IP 요청을 할 수 있도록 Port를 열고 있다가 (Listen) Client Connection을 잡아준다.
+			=> 해당 Port로의 요청을 iptables rule을 통해 각 Pod로 Loadbalancing 한다.
+			
+			
+		=> kube-proxy는 `실제 iptables의 rule 생성 및 관리`, `port를 listen`
+		
+		
+		
+	** kube-porxy 정리 (kube-proxy mode)
+		> userspace
+			- 클라이언트의 서비스 요청을 iptables를 거쳐 kube-proxy가 받아서 연결
+			- kubernetes 초기 버전에 잠깐 사용 (지금은 잘 운영되지는 않는다.)
+				=> nodePort로 들어온 요청을 iptables rule로 적용된 후 해당 결과를 kube-proxy가 받아서 각 pod들로 분배해주는 역할
+		
+		> iptables (** 기본값)
+			- default kubernetes network mode (현재 default kubernetes service 방식)
+			- kube-porxy는 service API 요청(service 생성 요청) 시 iptables rule이 생성
+			- Client 연결은 kube-proxy가 받아서 iptables rule을 통해 연결
+				=> NodePort로 들어오는 경우에는 해당 nodePort를 Listen하면서 Client connection을 잡아서 iptables rule로 연결하여 pod와 통신할 수 있게 지원해줌!
+			
+		> IPVS
+			- Linux 커널이 지원하는 L4 Loadbalancing 기술을 이용
+			- 별도의 ipvs 지원 모듈을 설정한 후 적용 가능 (기본으로는 사용하지 못하고 ipvs를 지원해주는 모듈을 각 node에 활성화 시킨 후 활용 가능)
+			- 지원 알고리즘
+				- rr	(round-robin)
+				- lc	(least connection)
+				- dh (destination hashing)
+				- sh (source hashing)
+				- sed (shortest expected delay)
+				- nc (network queue)
+
+
+
+
+
+# ==============================
+# ==============================
+# Kubernetes Ingress
+# ==============================
+# ==============================
+	: Kubernetes가 제공하는 API 중 하나 (pod, controller, service 같은 API)
+	
+	- HTTP나 HTTPS를 통해 Cluster 내부의 Service를 외부로 노출
+		=> 웹기반의 서비스를 외부에서 접속할 수 있도록 도움을 주는 API
+		
+	- 기능
+		- Service에 대한 외부 URL 제공
+		- 트래픽을 Loadbalancing
+		- SSL 인증서 처리 (SSL : HTTPS의 암호화 기능)
+		- Virtual hosting을 지정
+		
+
+	
+	ClusterIP Service로 Pod를 묶은 경우, 외부에서 접속 불가
+		=> 여러 서비스의 ClusterIP를 통합하여 외부의 접속을 처리하는 하나의 관리자를 둔다!
+			서비스들에 대한 단일 진입점을 만든다.
+				=> Ingress Controller
+				
+				
+	Ingress Controller는 직접 만드는게 아니고 Kubernetes가 만들어서 Kubernetes Open project로 제공을 해주고 있다.
+	Ingress Controller는 Kubernetes가 제공하는 것 이외에도 여러 곳에서 다양하게 제공을 하고 있다.
+		=> 우리가 사용할 것은 NGINX Ingress Controller (Kubernetes가 Open Project로 제공해주고 있는 것임)
+		
+
+
+# Ingress Controller 동작 방식
+	
+	#1> Ingress Controller를 실행 시킨다.
+	
+	
+	#2> Ingress Controller에 서비스들을 묶어 Ingress Rule을 정의해서 Ingress Controller에 입력시킨다.
+		특정 url로 접속하게 되면 특정 Service로 연결시켜줘!
+		(HTTP 뿐 아니라 HTTPS도 지원)
+		
+		ex>
+			- http://www.example.com/		-> svc Main
+			- http://www.example.com/login	-> svc Login
+			- http://www.example.com/order	-> svc Order
+			
+			
+		=> Ingress Controller가 외부 Client 사용자들이 Path를 통하여(MultiPath) Kubernetes 내부의 Service로 요청 가능하도록 한다. (Service에 대한 외부 URL 제공)
+		=> 트래픽을 분배한다 (Traffic LoadBalancing)
+		=> SSL 인증서를 적용하면 HTTPS 가능
+		=> rule만 잘 세팅하면 host 주소도 여러개 사용 가능! (virtual hosting 기능)
+		
+	=> 웹 서비스에서는 필수!!
+
+
+
+# Ingress Controller 설치
+	
+	1) https://kubernetes.io/
+	
+	2) 상단 Documentation 탭
+	
+	3) 검색창에 'Ingress' 검색
+	
+	4) 첫번째 링크 클릭
+	
+	5) 사진 아래 An Ingress controller is responsible에 있는 링크 클릭
+		(못찾으면 해당 링크 클릭 : https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
+	
+	6) 아래 글 확인
+		"Kubernetes as a project supports and maintains AWS, GCE, and nginx ingress controllers."
+			=> 쿠버네티스가 서포트하는 프로젝트는 AWS, GCE, NGINX ingress controller이다!
+			=> 우리는 Private Cloud 환경이기 때문에 AWS, GCE말고 NGINX 선택
+			
+	7) 위 글에서 nginx 클릭
+		=> 못찾으면 해당 링크 클릭 : https://github.com/kubernetes/ingress-nginx/blob/main/README.md#readme
+		
+		
+	8) Get Started 항목에 해당된 링크 클릭 (Getting started)
+		=> https://kubernetes.github.io/ingress-nginx/deploy/
+	
+	9) Contents 항목에서 Bare-metal 선택
+		- `VM`, `물리장비 설치`는 모두 Bare-metal 이다 (Public Cloud가 아니면 Bare-metal)
+			=> https://kubernetes.github.io/ingress-nginx/deploy/#bare-metal-clusters
+			
+	10) Node Port 기반으로된 url 복사
+		=> kubectl apply -f (url 주소 : 이 부분)
+		
+	11) 해당 URL로 deploy를 실행하지는 않고 파일 다운로드만 받아보자!
+		wget (해당 url)
+			
+		=> 내용은 NodePort 생성문이 있다.
+			=> NodePort를 열어서 client connection을 받아서 해당 rule에 따라 service를 해준다!
+			
+	12) 실행
+		kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/baremetal/deploy.yaml
+			
+			
+	13) 실행 pod 확인
+		kubectl get pods -n ingress-nginx
+			
+			
+	14) 실행 service 확인
+		kubectl get svc -n ingress-nginx
+
+
+
+
+# 확인
+	kubectl get all -n ingress-nginx
+		=> get all은 모든 서비스 관련 리소스를 보여주새요!
+		=> ingress controller가 ingress-nginx 네임스페이스 내부에서 동작 중임을 확인
+		
+		
+
+# Ingress를 이용한 웹서비스 운영 : namespace 치환
+	
+	- Defualt namespace 치환 : kubectl config
+	
+		# kubectl get namespace
+		# kubectl config --help
+		# kubectl config view
+		# kubectl config set-context ingress-admin@kubernetes --cluster=kubernetes --user=kubernetes-admin --namespace=ingress-nginx
+		
+		# kubectl config view
+		# kubectl config use-context ingress-admin@kubernetes
+		# kubectl config current-context
+		
+		# kubectl get all
+		# kubectl apply -f marvel-home.yaml -f pay.yaml
+	
+
+
+# 웹 Service 생성
+	# cat marvel-home.yaml
+-------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marvel-home
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: marvel
+  template:
+    metadata:
+      labels:
+        name: marvel
+    spec:
+      containers:
+      - image: marvel-collection # 적당한 이미지로 변경
+        name: marvel-container
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marvel-service
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    name: marvel
+-------
+
+
+	# cat pay.yaml
+-------
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: pay-rc
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: pay
+    spec:
+      containers:
+      - image: pay # 적당한 이미지로 변경
+        name: pay
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pay-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: pay
+-------
+	
+	# kubectl apply -f marvel-home.yaml -f pay.yaml
+	# kubectl get all
+		또는
+			# kubectl get deployments.app,replicationcontroller
+			# kubectl get svc
+	
+	
+	
+# Ingress 동작
+	# cat ingress.yaml
+-------
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: marvel-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: marvel-service
+          servicePort: 80
+      - path: /pay
+        backend:
+          serviceName: pay-service
+          servicePort: 80
+-------
+	
+	# kubectl apply -f ingress.yaml
+		=> kind: Ingress
+		=> rule이 ingress controller에게 입력된다.
+	
+	
+	# kubectl describe ingress marvel-ingress
+		=> ingress rule 확인 가능! (Rules:)
+	
+	# kubectl get ingress
+	# kubectl get svc ingress-nginx-controller
+	
+	# curl node1.example.com:(ingress controller 포트)/
+	# curl node1.example.com:(ingress controller 포트)/pay
+	
+	
+	=> 외부에서도 접속하려면 PortForwarding이나 LoadBalancer 장비가 필요하다!
+		=> 강의에서는 KT Cloud로 port forwarding 함
+	
+		
+		
+		
+# Ingress에 rule 적용 스크립트
+	
+-------
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: marvel-ingress
+spec:
+  rules:									# Ingress Controller에게 적용되는 rule
+  - http:
+      paths:
+	  - path: /
+	    backend:
+		  serviceName: marvel-service
+		  servicePort: 80
+	  - path: /pay
+	    backend:
+		  serviceName: pay-service
+		  servicePort: 80
+-------
+
+
+
+
+
+
+
+# ==============================
+# ==============================
+# Label
+# ==============================
+# ==============================
+	- Node를 포함하여 Pod, Deployment 등 모든 리소스에 할당
+		=> 많은 종류의 Pod, Service, Deploy, Disk 등의 Resources를 원하는 목적에 따라 분류하기 위해 활용!
+			(Worker Node에도 적용 가능)
+	- Resource의 특성을 분류하고, Selector를 이용해서 선택
+		=> Resource의 특성을 분류할 목적으로 활용
+	- Key-Value 한쌍으로 적용
+		=> Key-Value 한쌍으로 적용 (기준을 정하고 분류)
+		
+		
+	=> 모든 Label들은 2개 이상의 Key를 가지고 구분을 할 수 있어야한다!
+	
+		Label을 가지고 구분해보자
+			1> Label Group #1
+				name=mainui
+				rel=statble
+				
+			6> Label Group #6
+				name=mainui
+				rel=canary
+				
+
+
+
+# Label 과 Selector
+
+	[Label]
+		=> Label을 구성할 때는 어떤 Resource Object가 되든 아래 처럼 yaml 파일에 구성한다.
+------------------------------
+metadata:
+  labels:
+    rel: stable
+    name: mainui
+------------------------------
+
+
+	[Selector]
+		=> Label 설정해 둔 Resource Object는 Selector를 이용하여 실행을 컨트롤할 수 있다!
+------------------------------
+selector:
+  matchLabels:			# Label 활용 방법#1
+    key: value
+  matchExpressions:		# Label 활용 방법#2
+  - {key: name, operator: In, values: ["mainui"]}			# `name` key안에 mainui가 있으면 선택
+  - {key: rel, operator: NotIn, values: ["beta", "canary"]	# `rel` 안에 해당 값이 없으면 선택
+------------------------------
+
+	https://kubernetes.io/ko/docs/concepts/overview/working-with-objects/labels/
+		=> 읽어보기!
+		=> "레이블 예시" 에서 단어 유용한듯
+
+
+
+
+
+
+# Label Template In Pod Template
+
+	[Only Pod Template]
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appjs-pod
+
+
+spec:
+  containers:
+  - name: appjs-container
+    image: nginx:1.14
+    ports:
+    - containerPort: 8080
+------------------------------
+
+
+	[Pod Template with Label]
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appjs-pod
+  labels:					#
+    app: web					#
+    version: "1.14"			#
+spec:
+  containers:
+  - name: appjs-container
+    image: nginx:1.14
+    ports:
+    - containerPort: 8080
+------------------------------
+
+
+	** Key Value 작성 방법
+		labels:
+			key: "values"
+				=> 쌍 따움표로 value를 감싸줘야한다!
+					(단, 단순 문자열일 경우 "" 불필요)
+					(단, TRUE, FALSE, YES, NO 등(소문자도)의 값은 반드시 "" 활용)
+
+
+
+
+
+
+# Label Practice
+
+	kubectl run cmdpod --image=nginx:1.14 --port=80
+	
+	
+
+	vi pod1.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-demo
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14
+    ports:
+    - containerPort: 80
+------------------------------
+	
+	
+	
+	vi pod2.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: label-pod-demo
+  labels:
+    name: mainui
+    rel: stable
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14
+    ports:
+    - containerPort: 80	
+------------------------------
+
+
+	kubectl create -f pod1.yaml -f pod2.yaml
+	
+	
+	kubectl get pods
+	
+
+	kubectl get pods
+	
+	
+	kubectl get pods --show-labels
+		=> command line으로 생성한 Pod는 자동으로 label이 할당됨을 확인
+			(키워드 (run)= value (podname: cmdpod))
+			
+			
+	kubectl get pods -l name=mainui
+		=> 해당 label key를 갖는 pod 목록만 조회
+		
+		
+	kubectl get pods --selector name=mainui
+		=> 위 커멘드와 동일
+		
+		
+	kubectl delete pods --selector name=mainui
+		=> 해당 조건에 맞는 pod 삭제
+			=> 갯수 확장, 삭제, 서비스로 묶는다, 동작 실행, 동작 멈춤 등의 작업을 관리
+
+
+	kubectl create -f pod2.yaml
+	
+			
+	kubectl get pods --show-labels
+	
+			
+	kubectl label pod pod-demo name=test
+		=> 실행 중인 pod label 변경
+		=> pod, service, node, deploy 등 resource object 가능!
+		=> 물론 kubectl apply -f 로 적용 가능!
+		
+		
+	kubectl get pods --show-labels
+	
+	
+	kubectl label pod pod-demo name=login
+		=> 이미 name키가 있어서 다른 value를 지정할 수 없다! (--overwrite라는 속성 필요)
+		
+		
+	kubectl label pdd pod-demo name=login --overwrite
+	
+	
+	kubectl get pods --show-labels
+	
+	
+	kubectl label pod cmdpod name=order rel=beta
+		=> 두 개 이상의 label은 공백으로 구분
+		=> 하나라도 기존에 있는 label key 활용하면 --overwrite 속성 필수
+		
+		
+	kubectl label pod cmdpod run-
+		=> `(레이블키명)-` 로 Label 삭제 가능
+
+
+	kubectl get pods --show-labels
+	
+	
+	kubectl label pod pod-demo rel=stable
+	
+	
+	kubectl get pods --show-labels
+	
+	
+	kubectl get pods --selector rel=stable
+	
+	
+	kubectl get pods --selector rel=beta
+	
+	
+	kubectl delete pods --selector rel=beta
+	
+
+
+
+
+
+
+
+# Worker node에 Label 설정
+
+	=> 각각의 Worker Node의 사양(spec)이 다를 경우
+		=> Kubernetes가 하드웨어 정보를 수집해서 기억하지는 않는다!
+			gpu:true
+			disk:ssd
+			=> 이런식으로 label 생성하여 활용한다
+			
+		=> Pod 실행 시, 조건을 넣는다.
+			
+		
+	
+# Node Label
+	- Worker Node의 특성을 Label로 설정
+		kubectl label nodes <노드 이름> <레이블 키>=<레이블 값>
+		
+	- Node를 선택해서 파드를 배치할 수 있다. (nodeSelector)
+	
+	
+	
+	
+# Node Label 명령어
+	
+	[yaml 파일 nodeSelector]
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: testpod
+spec:
+  containers:
+  - name: nginx
+    image: nginx: 1.14
+  nodeSelector:
+    key1: value1
+    key2: value2
+------------------------------
+	
+	Label 보기
+		kubectl get nodes --show-labels
+		kubectl get nodes -L <label_name>
+	
+	Label 관리 : kubectl label --help
+		kubectl label node <name> key=value
+		kubectl label node <name> key=value --overwrite
+		kubectl label node <name> --show-labels
+		kubectl label node <name> key-
+	
+	
+	
+# Node Label Practice
+
+	kubectl get nodes --show-labels
+	
+	kubectl label nodes node1.example.com gpu=true disk=ssd
+	
+	kubectl label nodes node2.example.com gpu=true
+	
+	kubectl label nodes node3.example.com disk=ssd
+	
+	kubectl get nodes --show-labels
+	
+	kubectl get nodes -L disk,gpu
+		=> label 중 disk와 gpu key만 보겠다.
+		
+	
+	
+	vi nodeselector.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nodeselector
+spec:
+  containers:
+  - name: nginx
+    image: nginx: 1.14
+    ports:
+    - containerPort: 80
+  nodeSelector:
+    gpu: "true"
+    disk: "ssd"
+------------------------------
+	
+	
+	kubectl create -f nodeselector.yaml
+	
+	
+	kubectl get pods -o wide
+		=> node 확인!
+		=> 만약! Label 조건에 맞는 Node가 존재하지 않으면, STATUS가 Pending 상태로 대기
+	
+	
+	kubectl delete pod pod-nodeselector
+
+
+
+
+
+# ==============================
+# ==============================
+# Annotation
+# ==============================
+# ==============================
+	key-value는 동일하나,
+		- label은 selector를 활용하여 원하는 형태로 사용
+		- annotation은 정보를 Pod 실행 관리자에게 전달 목적
+		
+	Annotaion을 이용하여
+		Kubernetes에게 요청할 때 활용
+	
+	
+	
+
+	> Label과 동일하게 key-value를 통해 Resource의 특성을 기록
+	
+	> Kubernetes에게 특정 정보 전달 용도(K8s가 미리 정의한 Key-Value)로 사용
+		(이전 방식의 --record rolling-update 방식은 예전에 활용하는 방식으로 최근에는 annotation을 활용하는 듯)
+		예를 들어 Deployment의 rolling update 정보 기록
+			annotations:
+				kubernetes.io/change-cause: version 1.15
+	
+	> 관리를 위해 필요한 정보를 기록할 용도로 사용
+		- 릴리즈, 로깅, 모니터링에 필요한 정보들을 기록
+			annotations:
+				builder: "Jonas Lim (jonasweet9900@gmail.com)"
+				buildDate: "20210502"
+				imageRegistry: https://hub.docker.com/
+		
+			=> 나중에 kubectl describe 명령어로 해당 정보만 조회 가능!
+	
+	
+
+
+
+# Annotation Example
+
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: anon-pod
+  annotations:
+    imageRegistry: "https://hub.docker.com/"
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14
+------------------------------
+
+	kubectl create -f annotation-exam1.yaml
+	kubectl describe pod annon-pod
+	
+	
+	
+	
+	
+	
+# Annotation Practice
+	
+	vi annotation.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-annotation
+  annotations:
+    builder: "Jonas Lim (jonasweet9900@gmail.com)"
+    buildDate: "20231015"
+    imageRegistry: "https://hub.docker.com/"
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14
+------------------------------
+	
+	
+	kubectl create -f annotation.yaml
+	
+	kubectl get pods
+	
+	kubectl describe pod pod-annotation
+		=> Annotations 정보 확인 가능
+		
+		
+	Deploy에 할 경우, rolling-update 시, history에 기록된다.
+------------------------------
+apiVersion: apps/v1
+metadata:
+  name: deploy-nginx
+  annotations:
+    kubernetes.io/change-cause: version 1.15	# 1.15라는 숫자가 나중에 rolling update 후 history로 기록됨
+spec:
+  ...
+------------------------------
+	
+	
+	kubectl delete pod pod-annotation
+
+
+
+
+
+
+# ==============================
+# ==============================
+# Canary Deployment with Label (레이블을 이용한 카나리 배포)
+# ==============================
+# ==============================
+	
+# Canary Deployment
+	> 포드를 배포(업데이트)하는 방법
+		- Blue-Green Update (Blue : Old Product / Green : New Product)
+			=> Blue를 다 내리고, Green을 다 실행
+				=> Down Time 발생
+			
+		- Rolling Update
+			=> 하나씩 Version Update로 서비스 중단 없이 Update
+			
+				
+		- Canary Update
+			=> 기존 버전 그룹안에다가 New 버전 하나를 집어넣어서 전체적으로 동작에 이상이 없는지 점검하며 Update를 순차적으로 하는 것
+				=> Label을 활용하여 해당 배포 방법을 진행할 수 있다!
+		
+		
+		
+	> Canary Deployment
+		- 기존 버전을 유지한 채로 일부 버전만 신규버전으로 올려, 신규 버전에 버그나 이상은 없는지 확인
+	
+	
+	
+	
+# Canary Deployment Example
+
+[Blue : Old]
+------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainui-stable
+spec:
+  replicas: 2				# 서비스 문제 이상 없을 경우 Green 증가 시 하나 줄임
+  selector:
+    matchLabels:
+      app: mainui			#
+      version: stable		#
+------------------------------
+
+[Green : New]
+------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainui-canary
+spec:
+  replicas: 1				# 서비스 문제 이상 없을 경우 하나씩 늘림
+  selector:
+    matchLabels:
+      app: mainui			#
+      version: canary		#
+------------------------------
+
+[Service]
+------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: mainui-svc
+spec:
+  selector:
+    app: mainui				# 해당 Label로 묶는다.
+------------------------------
+	=> 실행 후 버그가 있는지 Monitoring 하며, 문제 없을 경우, New 비율을 늘린다.
+	
+	
+	
+	
+	
+	
+# Canary Deployment Practice
+	
+	vi mainui-stable.yaml
+------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainui-stable
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mainui
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: mainui
+        version: stable
+    spec:
+      containers:
+      - name: mainui
+        image: nginx:1.14
+        ports:
+        - containerPort: 80
+------------------------------
+	
+	kubectl create -f mainui-stable.yaml
+	
+	kubectl get pods
+	
+	kubectl get pods --show labels
+	
+	
+	vi mainui-service.yaml
+------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: mainui-svc
+spec:
+  selector:
+    app: mainui
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+------------------------------
+
+	kuberctl create -f mainui-service.yaml
+	
+	
+	kubectl get svc
+		=> Cluster IP 확인
+		
+		
+	kubectl describe svc mainui-svc
+		=> Pod 2개 연결 확인
+		
+		
+	curl (cluster ip)
+	
+	
+	
+	
+	vi mainui-canary.yaml
+------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mainui-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mainui
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: mainui
+        version: canary
+    spec:
+      containers:
+      - name: mainui
+        image: nginx:1.15
+        ports:
+        - containerPort: 80
+------------------------------
+
+
+	kubectl create -f mainui-canary.yaml
+	
+	
+	kubectl describe svc mainui-svc
+		=> 3개 Pod 매핑 확인
+		
+		
+	curl (cluster ip)
+		=> 3개의 Pod 중 하나 요청
+		
+		
+	kubectl get deploy
+	
+	
+	kubectl scale deployment mainui-canary --replicas=2
+	
+	
+	kubectl get deploy
+	
+	
+	kubectl delete deploy mainui-canary
+		=> 테스트만 진행하고 배포하지 않을때
+		
+		
+	kubectl get deploy
+
+
+
+
+
+
+
+# ==============================
+# ==============================
+# ConfigMap
+# ==============================
+# ==============================
+		=> K8s에서 Pod의 각 Container들이 구성파일이나 환경설정을 위한 정보 등을 한군데 모아서 관리
+		
+
+# ConfigMap 이해
+	- ConfigMap : 컨테이너 구성 정보를 한 곳에 모아서 관리
+	
+		=> 관리해야할 컨테이너가 수백개이다
+			=> 컨테이너 별로 구성 정보를 관리하기가 힘들다.
+			=> 한 군데 모아서 관리!
+		
+		
+		=> 모든 구성정보를 한 군데(한 테이블에) 관리하다가
+			특정 컨테이너에게 필요한 값을 전달
+			
+			=> 변경이 쉽다 (공통 변수 느낌)
+			
+			
+		Config Map 생성
+			=> 특정 Pod안 Container에게 아래와 같은 방법으로 전달 가능
+				- 환경변수
+				- 매개변수
+				- Volume Mount (file로서 전달)
+
+	
+	
+	
+	
+# ConfigMap Create
+	kubectl create configmap <configmap 이름> [--from-file=source] [--from-literal=key1=value1]
+	
+	example
+	kubectl create configmap CONFIG_NAME --from-literal=id=b20231015 --from-literal=class=bigdata
+		#1> key : value = id : b20231015
+		#2> key : value = class : bigdata
+	
+	kubectl create configmap CONFIG_NAME --from-file=text.file
+		#1> key : value = text.file (파일명) : text.file (실제파일 내용)		
+	
+	kubectl create configmap CONFIG_NAME --from-file=mydata=text.file
+		#1> key : value = mydata : text.file (실제파일 내용)
+		
+	kubectl create configmap CONFIG_NAME --from-file=/configmap.dir/
+		#1> key : value = (디렉토리 내부 파일 #n 이름) :(디렉토리 내부 파일 #n 내용)
+	
+	
+	** Value의 최대 사이즈는 1MiB이다!
+	
+	
+	
+	
+	
+	
+# ConfigMap Practice
+	
+	
+	
+1) ConfigMap 생성
+	mkdir config.dir
+	cd config.dir
+	vi nginx-config.conf
+------------------------------
+server {
+	listen	80;
+	server_name	www.example.com
+	
+	gzip on;
+	gzip_types text/plain application/xml;
+	
+	location / {
+		root	/usr/share/nginx/html;
+		index	index.html index.htm;
+	}
+}
+------------------------------
+
+	cd ..
+
+	kubectl create configmap jonas-config \
+	--from-literal=INTERVAL=2 --from-literal=OPTION=boy --from-file=config.dir/
+		=> Yaml 형태로 configmap을 생성해도 된다!
+			(생성하고 edit 참고하면 될듯)
+	
+	
+	kubectl get configmaps
+		=> 이름, 데이터 갯수, age
+		
+		
+	kubectl describe configmaps jonas-config
+		=> Key Value가 어떻게 들어있는지 보인다!
+		
+		
+	kubectl edit configmaps jonas-config
+		=> yaml 파일 형태로 편집 가능
+		
+		
+	
+	
+	
+	
+	
+	
+	
+2) ConfigMap의 일부 Value 값만 적용 (일부 Pod의 Container)
+
+	** valueFrom
+		: 해당 환경변수에 한하여 ConfigMap의 해당 Key의 Value가 적용
+
+	cd ~
+	mkdir build
+	cd build
+	vi genid.sh
+------------------------------
+#!/bin/bash
+mkdir -p /webdata
+while true
+do
+	/usr/bin/rig | /usr/bin/boxes -d $OPTION > /webdata/index.html
+	sleep $INTERNAL
+done
+------------------------------
+
+	** 참고
+		- rig
+			=> fake id 생성
+			=> 설치해야만 사용 가능
+			
+		- rig | boxes
+			=> fake id를 박스 형태로 생성
+		- rig | boxes -d boy
+			=> boy형태로 만들어진 fake id를 생성
+	
+	
+	
+	vi Dockerfile
+------------------------------
+FROM ubuntu:18.04
+RUN apt-get update; apt-get -y install rig boxes
+ENV INTERVAL 5
+ENV OPTION stone
+ADD genid.sh /bin/genid.sh
+RUN chmod +x /bin/genid.sh
+ENTRYPOINT ["/bin/genid.sh"]
+------------------------------
+
+docker build -t genid:env .
+
+	
+	vi genid.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: genid-stone
+spec:
+  containers:
+  - image: genid:env
+    env:
+    - name: INTERVAL
+      valueFrom:				# INTERVAL 환경변수에는 'jonas-config' configMap에 있는 INTERVAL Key에서 Value를 가져와 집어넣어라!
+        configMapKeyRef:
+          name: jonas-config
+          key: INTERVAL
+    name: fakeid
+    volumeMounts:
+    - name: html
+      mountPath: /webdata
+  - image: nginx:1.14
+    name: web-server
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+      readOnly: true
+    ports:
+    - containerPort: 80
+  volumes:
+  - name: html
+    emptyDir: {}
+------------------------------
+
+	=> 실행중인 Config 값을 변경하려면!
+		=> Pod 중지 후 configMap의 해당 KEY 변경 후 Pod 재실행하면 적용됨!
+		=> yaml 파일은 그대로 둬도 된다!
+		=> 모든 Container의 설정을 한번에 변경 가능! (한군데서 관리!)
+	
+	
+	
+	kubectl apply -f genid.yaml
+	
+	kubectl get pods
+	
+	kubectl get pods -o wide
+		=> IP 주소 확인
+		
+	curl (해당 IP 주소)
+		=> 갱신 주기가 2초인지 확인
+		
+	kubectl delete pod --all
+	
+	
+	kubectl edit configmap jonas-config
+		=> INTERVAL을 10초로 변경
+	
+	kubectl apply -f genid.yaml
+	
+	kubectl get pods -o wide
+		=> IP 주소 확인
+		
+	curl (해당 IP 주소)
+		=> 갱신 주기가 10초인지 확인
+	
+	
+	
+	
+	
+	
+	
+3) ConfigMap 전체 값 적용
+	
+	** valueFrom
+		: 해당 환경변수에 한하여 ConfigMap의 해당 Key의 Value가 적용
+		
+	** envFrom
+		: ConfigMap의 모든 값의 KEY가 환경변수 KEY, Value가 환경변수 Value
+		
+		
+	vi genid-whole.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: genid-boy
+spec:
+  containers:
+  - image: genid:env
+    envFrom:					# ConfigMap의 전체가 환경변수에 적용 (INTERVAL과 OPTION도 적용이 되었을 것이다!)
+    - configMapRef:
+        name: jonas-config
+    name: fakeid
+    volumeMounts:
+    - name: html
+      mountPath: /webdata
+  - image: nginx:1.14
+    name: web-server
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+      readOnly: true
+    ports:
+    - containerPort: 80
+  volumes:
+  - name: html
+    emptyDir: {}
+------------------------------
+
+
+	kubectl create -f genid-whole.yaml
+
+	kubectl get pods -o wide
+	
+	kubectl exec genid-boy -- env
+		=> genid-boy Pod에 있는 환경변수 보여줘!
+		=> INTERVAL과 OPTION 확인!
+			(INTERVAL : 10)
+			(OPTION : boy)
+		=> nginx-config.cof 파일도 있는 것 확인
+		
+		
+	kubectl get pods -o wide
+		=> IP 확인
+	
+	curl (IP 주소)
+	
+	
+	
+	
+	
+	
+4) ConfigMap의 한 부분 또는 전체를 Volume으로 Mount 시키기
+	=> ConfigMap의 Key가 파일이름, Value가 파일 내용이 된다!
+	
+	
+	vi genid-volume.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: genid-volume
+spec:
+  containers:
+  - image: genid:env
+    env:
+    - name: INTERVAL
+      valueFrom:
+        configMapKeyRef:
+          name: jonas-config
+          key: INTERVAL
+    name: fakeid-generator
+    volumeMounts:
+    - name: html
+      mountPath: /webdata
+  - image: nginx:1.14
+    name: web-server
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: html
+      mountPath: /etc/nginx/conf.d			# container 내부의 마운트 경로
+      readOnly: true
+  volumes:
+  - name: html
+    emptyDir: {}
+  - name: config
+    configMap:
+      name: jonas-config					#
+      items:								#
+      - key: nginx-config.conf				# 해당 key의 Value인 파일을
+        path: nginx-config.conf				# 해당 파일로 등록 (해당 설명이 맞는지 불확실)
+------------------------------
+
+	kubectl create -f genid-volume.yaml
+	
+	kubectl get pods -o wide
+		=> IP
+	
+	curl (IP)
+	
+	kubectl exec -it genid-volume -c web-server -- /bin/bash
+	
+		cd /etc/nginx/conf.d
+		ls
+		cat nginx-config.conf
+			=> 만든 것 확인
+		ls -l
+			=> 실제 파일이 아니라 ConfigMap에서 지원해주는 데이터인 것 확인 ("->" 있으면 링크로 기억)
+	
+		exit
+	
+
+
+
+# ==============================
+# ==============================
+# Secret
+# ==============================
+# ==============================
+		: ConfigMap과 동일하게 Application이 사용하는 데이터를 한 곳에 모은다.
+		=> 하지만 Base64로 인코딩하여 모아준다!
+		
+		
+	
+1) ConfigMap과 Secret
+	
+	- ConfigMap
+		: Container 구성 정보를 한 곳에 모아서 관리
+	
+	- Secret
+		: Container가 사용하는 password, auth token, ssh key와 같은 중요 정보 저장
+			=> 민감한 구성정보를 Base64 Encoding해서 한 곳에 모아 관리
+	
+	- 민감하지 않은 일반 설정파일 configMap을 사용하고 민감한 데이터는 secret을 사용
+	
+	- Secret 데이터 전달 방법 (ConfigMap과 동일)
+		- Command-line Argument
+		- Environment Variable
+		- Volume Mount
+		
+		
+		
+2) Secret 만들기
+	
+	kubectl create secret <Available Commands : 아래 참조> <name> [flags] [options]
+		- docker-registry		Create a secret for use with a Docker registry
+		- generic				Create a secret from a local file, directory or literal value
+		- tls					Create a TLS secret
+		
+		=> Available Commands에 따라 option이 다름
+			=> 반드시 3가지 중 하나 선택!
+		
+		
+		
+	** docker-registry 옵션
+		=> Docker Registry 인증 관련 데이터
+		
+		--docker-username=<Username>
+		--docker-password=<Password>
+		--docker-email=<Email>
+		
+		
+	** tls 옵션
+		=> TLS 공개키, 개인키
+	
+		--cert=<Public Key>
+		--key=<Private Key>
+		
+		
+	** generic
+		=> 나머지 모두 (User Define(d?) Data)
+		
+		--from-literal=<Key>=<Value>
+		--from-file=<File or Directory>
+		
+		
+		
+		
+	kubectl create secret tls my-secret --cert=path/to/cert/file --key=path/to/key/file
+	
+	kubectl create secret docker-registry reg-secret --docker-username=tiger \
+		--docker-password=pass --docker-email=tiger@google.com
+		
+	kubectl create secret generic jonas-secret \
+		--from-literal=INTERNAL=2 --from-file=./genid-web-config/
+		
+		
+		
+
+
+3) Secret 생성 및 조회 실습
+
+	
+	3-1) Secret 생성
+	
+	
+	mkdir genid-web-config
+	cd genid-web-config
+	vi nginx-config.conf
+------------------------------
+server {
+	listen	80;
+	server_name	www.example.com
+	
+	gzip on;
+	gzip_types text/plain application/xml;
+	
+	location / {
+		root	/usr/share/nginx/html;
+		index	index.html index.htm;
+	}
+}
+------------------------------
+
+	
+	cd ..
+	
+	kubectl create secret generic jonas-secret --from-literal=INTERVAL=2 --from-file=./genid-web-config
+	
+	
+	kubectl get secrets
+		- "default-token-..."
+			: Kubernetes가 내부적으로 사용하는 default Service Account로 사용되어짐
+			: TYPE은 kubernetes.io/service-account-token
+			
+		
+		- jonas-secret의 TYPE은 "Opaque" : 사용자 정의 Secret이라는 의미
+		
+		
+		
+		
+	** Secret Type 정리
+		> Opaque
+			: 임의의 사용자 정의 데이터
+		
+		> kubernetes.io/service-account-token
+			: 서비스 어카운트 토큰
+		
+		> kubernetes.io/dockercfg
+			: 직렬화된(Serialized) ~/.dockercfg 파일
+			
+		> kubernetes.io/dockerconfigjson
+			: 직렬화된 (Serialized) ~/.docker/config.json 파일
+			
+		> kubernetes.io/basic-auth
+			: 기본 인증을 위한 자격 증명 (credential)
+		
+		> kubernetes.io/ssh-auth
+			: SSH를 위한 자격 증명
+			
+		> kubernetes.io/tls
+			: TLS 클라이언트나 서버를 위한 데이터
+			
+		> bootstrap.kubernetes.io/token
+			: 부트스트랩 토큰 데이터
+		
+
+
+	3-2) Secret 조회
+
+	kubectl describe secrets jonas-secret
+		=> 실제 값이 나오지 않는다! (byte만 표시)
+		
+		
+	kubectl get secrets jonas-secret -o yaml
+		=> 실제 값 대신 Base64 Encoding 값으로 저장 및 표시
+		=> 해당 값을 Pod로 전달할때는 Decoding하여 전달
+		
+		
+
+
+4) Secret 사용하기
+	
+	* 정의된 Secret을 Pod의 Container에 전달하는 방법 (ConfigMap과 거의 비슷)
+		
+		- Environment Variable로 전달
+		
+		- Command-line Argument로 전달
+		
+		- Volume에 secret을 사용하여 Container Directory에 Mount
+	
+
+
+
+5) Secret 사용하기 실습
+
+	vi genid-env-secret.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: genid-env-secret
+spec:
+  containers:
+  - image: genid:env
+    env:
+    - name: INTERVAL
+      valueFrom:				# INTERVAL 환경변수에는 'jonas-config' secret에 있는 INTERVAL Key에서 Value를 가져와 집어넣어라!
+        secretKeyRef:
+          name: jonas-secret
+          key: INTERVAL
+    name: fakeid-generator
+    volumeMounts:
+    - name: html
+      mountPath: /webdata
+  - image: nginx:1.14
+    name: web-server
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+      readOnly: true
+    ports:
+    - containerPort: 80
+  volumes:
+  - name: html
+    emptyDir: {}
+------------------------------
+
+	kubectl create -f genid-env-secret.yaml
+	
+	kubectl get pods -o wide
+		=> IP 확인
+		
+	curl (IP)
+		=> 이전에 설정한 INTERVAL의 Value인 2초에 한 번씩 갱신되는지 확인
+		
+	
+	
+
+	vi genid-volume-secret.yaml
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: genid-volume-secret
+spec:
+  containers:
+  - image: genid:env
+    env:
+    - name: INTERVAL
+      valueFrom:
+        secretKeyRef:
+          name: jonas-secret
+          key: INTERVAL
+    name: fakeid-generator
+    volumeMounts:
+    - name: html
+      mountPath: /webdata
+  - image: nginx:1.14
+    name: web-server
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name : html
+      mountPath: /etc/nginx/conf.d			# container 내부의 마운트 경로
+      readOnly: true
+  volumes:
+  - name: html
+    emptyDir: {}
+  - name: config
+    secret:
+      secretName: jonas-secret					#
+      items:								#
+      - key: nginx-config.conf				# 해당 key의 Value인 파일을
+        path: nginx-config.conf				# 해당 파일로 등록 (해당 설명이 맞는지 불확실)
+------------------------------
+
+
+	kubectl create -f genid-volume-secret.yaml
+	
+	
+	kubectl get pods
+		=> name 확인
+	
+	
+	kubectl exec -it genid-volume-secret -c web-server -- /bin/bash
+	
+	
+	cd /etc/nginx/config.d
+	
+	
+	cat nginx-config.conf
+		=> 미리 설정한 Value와 일치하는지 확인
+	
+	
+	마운트 결과 확인해보자
+
+		=> df -h
+			tmpfs로 "/etc/nginx/conf.d"가 있는지 확인
+			
+			
+	ls -l
+		=> 진짜 파일 아니고 심볼릭 링크 (링크 파일인듯)
+
+
+
+
+
+
+
+
+
+6) Secret 데이터 용량 제한
+	
+	- Secret은 etcd에 암호화 하지 않은 텍스트로 저장되므로 secret value가 커지면 메모리 용량을 많이 차지하게 됨
+	
+	- 각 Secret의 최대 크기는 1MB

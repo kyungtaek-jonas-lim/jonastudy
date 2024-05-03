@@ -14,3 +14,4 @@
 	> Linux
 	> Docker
 	> RabbitMQ (rabbitmqadmin)
+	> Kubernetes (K8S)
