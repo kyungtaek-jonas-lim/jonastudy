@@ -1,5 +1,5 @@
-# Project
-**`Jonastudy`**
+# Project Name
+### *`Jonastudy`*
 
 ## Author
 - **KyungTaek Lim (Jonas Lim)**
