@@ -27,7 +27,7 @@
 	- Focus on Authentication
 		- OIDC extends OAuth 2.0 to provide identity information, enabling authentication alongside authorization.
 
-- Image
+- Process
 	![OAuth2.0 and OIDC #1](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_1.png) ![OAuth2.0 and OIDC #2](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_2.png)
 
 &nbsp;
