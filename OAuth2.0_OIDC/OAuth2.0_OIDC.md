@@ -7,6 +7,7 @@
 - **LinkedIn:** [KyungTaek Jonas Lim](https://www.linkedin.com/in/kyungtaek-jonas-lim)
 - **GitHub:** [kyungtaek-jonas-lim](https://github.com/kyungtaek-jonas-lim)
 
+---
 ## ODIC(OpenID Connect) with OAuth 2.0 Protocol
 - OAuth 2.0
 	- Obtain an Access Token and use it to call APIs
@@ -29,6 +30,7 @@
 - Image
 	![OAuth2.0 and OIDC #1](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_1.png) ![OAuth2.0 and OIDC #2](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_2.png)
 
+&nbsp;
 ## Key Differences between OAuth 2.0 and OIDC
 | **Aspect**            | **OAuth 2.0**                                    | **OIDC**                                           |
 |-----------------------|--------------------------------------------------|---------------------------------------------------|
@@ -37,6 +39,7 @@
 | **ID Token**          | Not used                                         | Used for authentication (contains user claims)   |
 | **Use Cases**         | API access (e.g., Google Drive, GitHub)          | User login, SSO, identity verification           |
 
+&nbsp;
 ## OIDC Payload Standard Scope Parameter
 - [OpenID Connect Core 1.0 Specification](https://openid.net/specs/openid-connect-core-1_0.html#IDToken)
 - Main ID Token Claim
@@ -52,6 +55,7 @@
 	| `amr`           | Authentication Methods References - Describes the authentication methods used. |
 	| `azp`           | Authorized Party - The client for which the ID Token was issued. (In the case of Authorization Code Flow) |
 
+&nbsp;
 ## Direct Mobile App with OIDC
 - Direct Mobile App with OIDC (No Backend)
 	- In this approach, the mobile app directly interacts with the Authorization Server using the Authorization Code Flow with PKCE to obtain an Access Token and ID Token. These tokens are securely stored on the device and used for API requests and user authentication, without involving a backend server.
@@ -66,5 +70,6 @@
 
 		This prevents interception of the authorization code by ensuring the client proves it initiated the request.
 
+&nbsp;
 ## Reference
 - **[OpenID Connect](https://openid.net/connect/)**
