@@ -1,6 +1,13 @@
 # OAuth2.0 & OIDC
 
-### ODIC(OpenID Connect) with OAuth 2.0 Protocol
+## Author
+- **KyungTaek Lim (Jonas Lim)**
+- Software Engineer
+- **Email:** kyungtaekjonaslim@gmail.com
+- **LinkedIn:** [KyungTaek Jonas Lim](https://www.linkedin.com/in/kyungtaek-jonas-lim)
+- **GitHub:** [kyungtaek-jonas-lim](https://github.com/kyungtaek-jonas-lim)
+
+## ODIC(OpenID Connect) with OAuth 2.0 Protocol
 - OAuth 2.0
 	- Obtain an Access Token and use it to call APIs
 		- Access Token is used to access protected resources or perform specific actions on behalf of the user.
@@ -22,8 +29,7 @@
 - Image
 	![OAuth2.0 and OIDC #1](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_1.png) ![OAuth2.0 and OIDC #2](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram_2.png)
 
----
-### Key Differences between OAuth 2.0 and OIDC
+## Key Differences between OAuth 2.0 and OIDC
 | **Aspect**            | **OAuth 2.0**                                    | **OIDC**                                           |
 |-----------------------|--------------------------------------------------|---------------------------------------------------|
 | **Primary Purpose**   | Authorization (delegate access permissions)      | Authentication (identify the user)               |
@@ -31,8 +37,7 @@
 | **ID Token**          | Not used                                         | Used for authentication (contains user claims)   |
 | **Use Cases**         | API access (e.g., Google Drive, GitHub)          | User login, SSO, identity verification           |
 
----
-### OIDC Payload Standard Scope Parameter
+## OIDC Payload Standard Scope Parameter
 - [OpenID Connect Core 1.0 Specification](https://openid.net/specs/openid-connect-core-1_0.html#IDToken)
 - Main ID Token Claim
 	| Claim Name      | Description                                                                 |
@@ -47,8 +52,7 @@
 	| `amr`           | Authentication Methods References - Describes the authentication methods used. |
 	| `azp`           | Authorized Party - The client for which the ID Token was issued. (In the case of Authorization Code Flow) |
 
----
-### Direct Mobile App with OIDC
+## Direct Mobile App with OIDC
 - Direct Mobile App with OIDC (No Backend)
 	- In this approach, the mobile app directly interacts with the Authorization Server using the Authorization Code Flow with PKCE to obtain an Access Token and ID Token. These tokens are securely stored on the device and used for API requests and user authentication, without involving a backend server.
 
@@ -62,6 +66,5 @@
 
 		This prevents interception of the authorization code by ensuring the client proves it initiated the request.
 
----
-### Reference
+## Reference
 - **[OpenID Connect](https://openid.net/connect/)**
