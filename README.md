@@ -23,3 +23,5 @@
 - [OAuth2.0 / OIDC (OpenID Connect)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/OAuth2.0_OIDC/OAuth2.0_OIDC.md)
 - [Data Structure (Java)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_ko.md))
 - [Time Complexity](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/time_complexity/time_complexity.md)
+- [RabbitMQ vs Kafka](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/concept/message_broker/rabbitmq_kafka_difference_en.md)  ([en](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/concept/message_broker/rabbitmq_kafka_difference_en.md) / [ko](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/concept/message_broker/rabbitmq_kafka_difference_ko.md))
+- [Time Complexity](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/time_complexity/time_complexity.md)
