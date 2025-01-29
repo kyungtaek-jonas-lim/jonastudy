@@ -25,14 +25,7 @@ Node.js에서 MongoDB를 사용할 때 **MongoDBClient**(MongoDB 기본 드라�
 
 ---
 
-### **2. MongoDB 로컬 설치 방법 (간단한 설명)**  
-1. **[MongoDB 공식 웹사이트](https://www.mongodb.com/try/download/community)**에서 운영체제에 맞는 MongoDB Community Edition을 다운로드합니다.  
-2. 설치 후, MongoDB를 실행하기 위해 터미널에서 `mongod` 명령어를 실행합니다.  
-3. 기본적으로 MongoDB는 `localhost:27017`에서 실행됩니다.  
-
----
-
-### **3. MongoDBClient를 활용한 MongoDB 연결 및 CRUD 예제**
+### **2. MongoDBClient를 활용한 MongoDB 연결 및 CRUD 예제**
 
 #### **1. 프로젝트 초기 설정**
 ```bash
@@ -100,7 +93,7 @@ npx ts-node-dev src/app.ts
 
 ---
 
-### **4. Mongoose를 활용한 MongoDB 연결 및 CRUD 예제** ([참고](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
+### **3. Mongoose를 활용한 MongoDB 연결 및 CRUD 예제** ([참고](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
 
 #### **1. 프로젝트 초기 설정**
 ```bash

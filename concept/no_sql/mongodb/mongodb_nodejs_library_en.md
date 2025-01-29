@@ -25,14 +25,7 @@ When connecting Node.js to MongoDB, you can choose between **MongoDBClient** (of
 
 ---
 
-### **2. MongoDB Local Installation (Quick Guide)**
-1. Download the MongoDB Community Edition from the **[official MongoDB website](https://www.mongodb.com/try/download/community)** for your OS.  
-2. Use the terminal to start MongoDB with the `mongod` command.  
-3. MongoDB will run at `localhost:27017` by default.  
-
----
-
-### **3. Example using MongoDBClient**
+### **2. Example using MongoDBClient**
 
 #### **1. Project Setup**
 ```bash
@@ -99,7 +92,7 @@ npx ts-node-dev src/app.ts
 
 ---
 
-### **4. Example using Mongoose** ([reference](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
+### **3. Example using Mongoose** ([reference](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
 
 #### **1. Project Setup**
 ```bash
