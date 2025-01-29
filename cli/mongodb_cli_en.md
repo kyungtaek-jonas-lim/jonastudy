@@ -37,6 +37,7 @@ mongosh
 | `show collections`          | Lists all collections in the current database |
 | `db.createCollection("<name>")` | Creates a new collection                  |
 | `db.<collection>.drop()`    | Deletes a specific collection              |
+| `db["<collection>"].drop()`    | Deletes a specific collection (for special characters in the name) |
 
 #### **3) CRUD Commands**
 | Command                                   | Description                                 |
@@ -64,6 +65,12 @@ test> db.createCollection("users")
 
 test> show collections
 users
+
+test> db.createCollection("<Users>")
+{ "ok": 1 }
+
+test> db["<Users>"].drop()
+true
 ```
 
 #### **2) Inserting and Querying Data**

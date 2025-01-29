@@ -37,6 +37,7 @@ mongosh
 | `show collections`          | 현재 데이터베이스의 모든 컬렉션(테이블) 조회    |
 | `db.createCollection("<name>")` | 새로운 컬렉션 생성                        |
 | `db.<collection>.drop()`    | 특정 컬렉션 삭제                          |
+| `db["<collection>"].drop()`    | 특정 컬렉션 삭제 (특수문자)                 |
 
 #### **3) CRUD 명령어**
 | 명령어                                     | 설명                                         |
@@ -64,6 +65,12 @@ test> db.createCollection("users")
 
 test> show collections
 users
+
+test> db.createCollection("<Users>")
+{ "ok": 1 }
+
+test> db["<Users>"].drop()
+true
 ```
 
 #### **2) 데이터 삽입 및 조회**
