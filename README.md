@@ -18,6 +18,7 @@
 - [Docker](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/docker_cli.txt)
 - [RabbitMQ (rabbitmqadmin)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/rabbitmqadmin_cli.txt)
 - [Kubernetes (K8S)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/kubernetes_cli.txt)
+- [MongoDB CLI (mongosh)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/mongodb_cli_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/mongodb_cli_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/mongodb_cli_ko.md))
 
 ## Concept
 - [OAuth2.0 / OIDC (OpenID Connect)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/OAuth2.0_OIDC/OAuth2.0_OIDC.md)
