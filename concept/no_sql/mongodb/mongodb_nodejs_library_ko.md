@@ -93,7 +93,7 @@ npx ts-node-dev src/app.ts
 
 ---
 
-### **3. Mongoose를 활용한 MongoDB 연결 및 CRUD 예제** ([참고](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
+### **3. Mongoose를 활용한 MongoDB 연결 및 CRUD 예제** ([참고](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/ref/mongodb/mongodb_index.md))
 
 #### **1. 프로젝트 초기 설정**
 ```bash

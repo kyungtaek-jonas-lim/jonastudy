@@ -92,7 +92,7 @@ npx ts-node-dev src/app.ts
 
 ---
 
-### **3. Example using Mongoose** ([reference](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/src/services/ItemService.ts))
+### **3. Example using Mongoose** ([reference](https://github.com/kyungtaek-jonas-lim/jonas-api-master/blob/main/ref/mongodb/mongodb_index.md))
 
 #### **1. Project Setup**
 ```bash
