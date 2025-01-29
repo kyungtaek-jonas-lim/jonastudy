@@ -1,5 +1,5 @@
 ## **1. Caching Strategies & Cache Eviction Policies**
-### ** 1-1) Caching Strategies**
+### **1-1) Caching Strategies**
 
 Caching strategies determine how data is stored and retrieved in cache systems. These methods improve performance and reduce database load.
 
@@ -14,7 +14,7 @@ Caching strategies determine how data is stored and retrieved in cache systems. 
 
 ---
 
-### ** 1-2) Cache Eviction Policies**
+### **1-2) Cache Eviction Policies**
 
 Cache eviction policies determine how cache systems remove old or less useful data to free up space.
 
