@@ -1,4 +1,5 @@
 # Set
+In Java, Set is a collection interface that does not allow duplicate elements. The main implementation classes and types are as follows, each differing in behavior and characteristics.
 
 ### 1. **HashSet**
 - **Features**
@@ -93,11 +94,15 @@
 4. If the elements are of `Enum` type: `EnumSet`
 
 
+&nbsp;
 
+&nbsp;
 
+&nbsp;
 
----
 # List
+In Java, List is an interface that represents an ordered collection, allowing duplicate elements and providing access to elements via an index. The main implementation classes of List are as follows, each differing in behavior and characteristics.
+
 ### 1. **ArrayList**
 - **Features**
   - A `List` implementation based on a **dynamic array**.
@@ -198,8 +203,129 @@
 
 
 
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+# Queue
+In Java, `Queue` is a collection interface that follows the **FIFO (First In, First Out)** principle. The main implementations and their characteristics are as follows.
+
 ---
+
+### 1. **LinkedList (as Queue)**
+- **Characteristics**  
+  - `LinkedList` implements the `Queue` interface, providing **queue functionality**.  
+  - It is based on a **doubly linked list**, making **insertions and deletions fast**.  
+  - Supports queue operations like `offer()`, `poll()`, and `peek()`.  
+- **Time Complexity**  
+  - Insertion (`offer`): **O(1)**  
+  - Deletion (`poll`): **O(1)**  
+  - Peek (`peek`): **O(1)**  
+- **Example Usage**  
+  ```java
+  Queue<String> queue = new LinkedList<>();
+  queue.offer("A");
+  queue.offer("B");
+  queue.offer("C");
+  queue.poll(); // Returns "A" and removes it
+  ```
+
+---
+
+### 2. **PriorityQueue**  
+- **Characteristics**  
+  - **Removes elements based on priority** rather than insertion order.  
+  - Internally implemented using a **heap (binary heap)**.  
+  - **Does not maintain insertion order**.  
+  - Does **not allow `null` elements**.  
+- **Time Complexity**  
+  - Insertion (`offer`): **O(log n)**  
+  - Deletion (`poll`): **O(log n)**  
+  - Peek (`peek`): **O(1)**  
+- **Example Usage**  
+  ```java
+  Queue<Integer> priorityQueue = new PriorityQueue<>();
+  priorityQueue.offer(3);
+  priorityQueue.offer(1);
+  priorityQueue.offer(2);
+  priorityQueue.poll(); // Returns 1 (element with highest priority)
+  ```
+
+---
+
+### 3. **ArrayDeque**  
+- **Characteristics**  
+  - Implements `Deque` (Double-Ended Queue), allowing **insertion and deletion from both ends**.  
+  - Faster than `LinkedList`, using a **resizable array** internally.  
+  - **Does not allow `null` elements**.  
+- **Time Complexity**  
+  - Insertion (`offerFirst`/`offerLast`): **O(1)**  
+  - Deletion (`pollFirst`/`pollLast`): **O(1)**  
+  - Peek (`peekFirst`/`peekLast`): **O(1)**  
+- **Example Usage**  
+  ```java
+  Deque<String> deque = new ArrayDeque<>();
+  deque.offerLast("A");
+  deque.offerLast("B");
+  deque.offerFirst("C"); // Inserts at the front
+  deque.pollFirst(); // Returns "C" and removes it
+  ```
+
+---
+
+### 4. **ConcurrentLinkedQueue**  
+- **Characteristics**  
+  - **Thread-safe** and designed for **concurrent environments**.  
+  - **Lock-free implementation**, providing high performance.  
+  - Internally implemented using a **singly linked list**.  
+- **Time Complexity**  
+  - Insertion (`offer`): **O(1)**  
+  - Deletion (`poll`): **O(1)**  
+  - Peek (`peek`): **O(1)**  
+- **Example Usage**  
+  ```java
+  Queue<String> concurrentQueue = new ConcurrentLinkedQueue<>();
+  concurrentQueue.offer("A");
+  concurrentQueue.offer("B");
+  concurrentQueue.poll(); // Returns "A" and removes it
+  ```
+
+---
+
+### Comparison Summary  
+
+| **Implementation**       | **FIFO** | **Priority Support** | **Thread-Safe** | **Time Complexity (Insertion/Deletion)** |
+|-------------------------|----------|----------------------|-----------------|---------------------------------|
+| `LinkedList (Queue)`   | O        | X                    | X               | O(1) / O(1)                     |
+| `PriorityQueue`        | X        | O                    | X               | O(log n) / O(log n)             |
+| `ArrayDeque`           | O        | X                    | X               | O(1) / O(1)                     |
+| `ConcurrentLinkedQueue` | O        | X                    | O               | O(1) / O(1)                     |
+
+---
+
+### Selection Criteria  
+1. If a **basic FIFO queue** is needed → `LinkedList` (using the `Queue` interface).  
+2. If a **priority-based queue** is needed → `PriorityQueue`.  
+3. If **double-ended insertion/removal** is required → `ArrayDeque`.  
+4. If **thread-safety** is needed → `ConcurrentLinkedQueue`.
+
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
 # Map
+In Java, Map is an interface that stores data in key-value pairs, where keys must be unique, but values can be duplicated. The main implementation classes are as follows, each differing in characteristics and behavior.
+
 ### 1. **HashMap**
 - **Features**
   - `HashMap` is a **non-synchronized** `Map` implementation based on a **hash table**.
@@ -317,10 +443,16 @@
 4. For **thread-safe** operations:
    - Use `ConcurrentHashMap` for better performance.
    - Use `Hashtable` only if legacy code requires it.
-   
-  
-  
----
+
+
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+
 # Summary
 
 ### Set
@@ -354,6 +486,21 @@
 	- **LinkedList**: Also allows index-based access, but it's **sequential** and thus slower for large lists.
 
 
+### Queue
+
+| **Implementation**       | **FIFO** | **Priority Support** | **Thread-Safe** | **Time Complexity (Insertion/Deletion)** |
+|-------------------------|----------|----------------------|-----------------|---------------------------------|
+| `LinkedList (Queue)`   | O        | X                    | X               | O(1) / O(1)                     |
+| `PriorityQueue`        | X        | O                    | X               | O(log n) / O(log n)             |
+| `ArrayDeque`           | O        | X                    | X               | O(1) / O(1)                     |
+| `ConcurrentLinkedQueue` | O        | X                    | O               | O(1) / O(1)                     |
+
+- **`LinkedList`**: Implements the `Queue` interface, following FIFO behavior.
+- **`PriorityQueue`**: Elements are removed based on priority rather than order.
+- **`ArrayDeque`**: A **double-ended queue** allowing insertion and removal from both ends.
+- **`ConcurrentLinkedQueue`**: A **thread-safe, lock-free** queue for concurrent environments.
+
+
 
 ### Map
 
@@ -371,3 +518,34 @@
 - For **thread-safe** operations:
    - Use `ConcurrentHashMap` for better performance.
    - Use `Hashtable` only if legacy code requires it.
+
+
+---
+
+### **Selection Criteria Summary**
+
+1. **Set Selection Criteria**  
+   - If **fast lookup** is needed and order does not matter → `HashSet`  
+   - If **insertion order** needs to be maintained → `LinkedHashSet`  
+   - If **sorting is required** → `TreeSet`  
+   - If managing **Enum elements** efficiently → `EnumSet`  
+
+2. **List Selection Criteria**  
+   - If **fast read/random access** is needed → `ArrayList`  
+   - If **frequent insertions and deletions** are required → `LinkedList`  
+   - If **thread-safe list** is needed → `Vector`  
+   - If a **stack (LIFO) structure** is required → `Stack`  
+
+3. **Queue Selection Criteria**  
+   - **Basic FIFO queue** → `LinkedList`  
+   - **Priority-based queue** → `PriorityQueue`  
+   - **Insertion/deletion from both ends** → `ArrayDeque`  
+   - **Thread-safe queue** → `ConcurrentLinkedQueue`  
+
+4. **Map Selection Criteria**  
+   - If **fast lookup and modification** is needed → `HashMap`  
+   - If **insertion order must be maintained** → `LinkedHashMap`  
+   - If **sorted keys are required** → `TreeMap`  
+   - If **thread-safe Map** is needed:  
+     - For **high performance** → `ConcurrentHashMap`  
+     - For **basic synchronization** → `Hashtable` (not recommended)  
