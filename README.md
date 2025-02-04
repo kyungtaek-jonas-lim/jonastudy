@@ -34,3 +34,4 @@
     - [OAuth2.0 / OIDC](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/OAuth2.0_OIDC/OAuth2.0_OIDC.md)
     - [ORM vs ODM](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_ko.md))
     - [Time Complexity](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/time_complexity/time_complexity.md)
+    - [HTTP Response](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_ko.md))
