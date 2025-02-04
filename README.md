@@ -28,8 +28,8 @@
 - Data Structure
     - [Data Structure (Java)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/data_structure/data_structure_java_ko.md))
 - System Design
-    - [Shortening URLs](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_ko.md))
-    - [Caching](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_ko.md))
+    - [Shortening URLs](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_ko.md))
+    - [Caching](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/caching_ko.md))
 - ETC
     - [OAuth2.0 / OIDC](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/OAuth2.0_OIDC/OAuth2.0_OIDC.md)
     - [ORM vs ODM](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/orm_odm/orm_odm_ko.md))
