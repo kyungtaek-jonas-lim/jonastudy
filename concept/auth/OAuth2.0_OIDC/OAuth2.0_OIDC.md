@@ -28,7 +28,7 @@
 		- OIDC extends OAuth 2.0 to provide identity information, enabling authentication alongside authorization.
 
 - Process
-	![OAuth2.0 and OIDC #1](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/concept/OAuth2.0_OIDC/OAuth2.0_OIDC_Diagram.png)
+	![OAuth2.0 and OIDC Diagram](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/concept/auth/OAuth2.0_OIDC/OAuth2.0_OIDC_diagram.png)
 
 &nbsp;
 ## Key Differences between OAuth 2.0 and OIDC
