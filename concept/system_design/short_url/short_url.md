@@ -8,7 +8,7 @@
 &nbsp;
 
 ## Methods of Shortening URLs
-- [Methods of Shortening URLs](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_methods_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_methods_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/shorten_url_methods_ko.md))
+- [Methods of Shortening URLs](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/short_url/shorten_url_methods_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/short_url/shorten_url_methods_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/short_url/shorten_url_methods_ko.md))
 
 &nbsp;
 
