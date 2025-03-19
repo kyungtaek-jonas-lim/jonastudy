@@ -32,8 +32,6 @@
     - [ORM vs ODM](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_ko.md))
     - No-SQL
         - [MongoDB](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/mongodb/mongodb_index.md)
-- System Design
-    - [Short URL](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/system_design/short_url/short_url.md)
 - Message Broker
     - [RabbitMQ vs Kafka](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md)  ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_ko.md))
 - React
