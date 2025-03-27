@@ -38,6 +38,9 @@
     - [RabbitMQ vs Kafka](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md)  ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_ko.md))
 - React
     - [React Basics](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/react/react_basics_en.md)  ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/react/react_basics_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/react/react_basics_ko.md))
+- Spatial Indexing Techniques
+    - [QuadTree](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_en.md), [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_ko.md))
+    - [GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_en.md, [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_ko.md)))
 - ETC
     - [Time Complexity](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/time_complexity/time_complexity.md)
     - [HTTP Response](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_ko.md))
