@@ -1,8 +1,8 @@
 
 
 ## 1. ✅ **Concept**
-- **[QuadTrees](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_ko.md)**
-- **[GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_ko.md)**
+- **[QuadTrees](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/quadtree_en.md)**
+- **[GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_en.md)**
 
 ---
 

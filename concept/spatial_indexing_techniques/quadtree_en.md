@@ -22,7 +22,7 @@
 
 ---
 
-## ✅ Comparison Summary: QuadTree vs. [GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_ko.md)
+## ✅ Comparison Summary: QuadTree vs. [GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_en.md)
 
 | Feature | **QuadTree** | **GeoHashing** |
 |--------|--------------|----------------|
