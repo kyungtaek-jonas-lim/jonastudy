@@ -55,8 +55,52 @@ These playlist files tell the video player:
 
 ---
 
+### ❓ Who decides the resolution based on network speed?
+
+👉 **Not the CND/Backend**, but the **client-side video player** makes the decision and requests the appropriate resolution segment from the CND/Backend.
+
+---
+
+### 📺 Flow Summary
+
+1. The **client (player)** requests the `master.m3u8` or `manifest.mpd` to:
+   - See available resolutions
+   - Learn the segment paths for each resolution
+
+2. The **player analyzes network speed, buffer size, and device performance** to choose the right resolution.
+   - e.g., 360p if slow, 1080p if fast
+
+3. The client **requests segments of that resolution from the CND/Backend**:
+   - If cached, it’s returned immediately
+   - If not, CND/Backend fetches it from the origin (like S3)
+
+---
+
+### 🔁 Adaptive Streaming Loop
+
+```
+[Client]
+  ↓  (GET master.m3u8)
+[CND/Backend]
+  ↓
+(master playlist)
+
+[Client]
+  ↓  (GET 360p/segment0.ts)
+  ↓  (GET 360p/segment1.ts)
+  ↓  (GET 720p/segment2.ts ← switches as network improves)
+```
+
+✅ The player constantly monitors playback conditions and requests the next segment accordingly — **only one segment at a time** from the chosen resolution.
+
+
+
+---
+
 ### Summary
 
 - **HLS and DASH** = adaptive streaming protocols. Split videos into segments, support multiple qualities, and use playlists (`.m3u8`, `.mpd`) to deliver them efficiently.
 - ✅ The client/player requests **one segment at a time** from one resolution, and dynamically switches quality based on conditions.
 - ✅ The **protocol is chosen at the application level** — not automatically by browser or OS.
+- The **CND/Backend simply delivers static files** (playlists, video segments, thumbnails).
+- The **client decides the resolution** dynamically, adapting in real time during playback.
