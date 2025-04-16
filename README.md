@@ -34,6 +34,9 @@
         - [MongoDB](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/mongodb/mongodb_index.md)
 - Elastic Search
     - [Elastic Search](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_ko.md))
+- HTTP
+    - [HTTP Response](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_ko.md))
+    - [Adaptive Video Streaming Protocols (HLS vs DASH)](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/hls_dash_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/hls_dash_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/hls_dash_ko.md))
 - Message Broker
     - [RabbitMQ vs Kafka](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md)  ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/message_broker/rabbitmq_kafka_difference_ko.md))
 - React
@@ -43,5 +46,4 @@
     - [GeoHashing](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/spatial_indexing_techniques/geohashing_ko.md))
 - ETC
     - [Time Complexity](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/time_complexity/time_complexity.md)
-    - [HTTP Response](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/http/http_response_status_code_ko.md))
     - [High Availability vs High Consistency: Trade-off](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/availability_consistency/high_availability_vs_high_consistency_tradeoff_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/availability_consistency/high_availability_vs_high_consistency_tradeoff_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/availability_consistency/high_availability_vs_high_consistency_tradeoff_ko.md))
