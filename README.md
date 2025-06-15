@@ -32,6 +32,7 @@
     - [ORM vs ODM](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/orm_odm/orm_odm_ko.md))
     - No-SQL
         - [MongoDB](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/mongodb/mongodb_index.md)
+        - [Cassandra](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/cassandra/cassandra_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/cassandra/cassandra_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/database/no_sql/cassandra/cassandra_ko.md))
 - Elastic Search
     - [Elastic Search](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/elasticsearch/elasticsearch_ko.md))
 - HTTP
