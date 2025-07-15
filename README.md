@@ -23,6 +23,8 @@
 ## Concept
 - Auth
     - [OAuth2.0 / OIDC](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/auth/OAuth2.0_OIDC/OAuth2.0_OIDC.md)
+- AWS
+    - [Basic Installation for Applications on EC2](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/aws/basic-installation-ec2.md)
 - Caching
     - [Caching](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/caching/caching_en.md) ([en](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/caching/caching_en.md) / [ko](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/concept/caching/caching_ko.md))
 - Data Structure
