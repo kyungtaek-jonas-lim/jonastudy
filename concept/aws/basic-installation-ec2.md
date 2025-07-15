@@ -1,4 +1,4 @@
-# Basic Installation(/Setup) for Applications on EC2
+# Basic Installation for Applications on EC2
 
 ## Index
 1. [`Amazon Linux`](#amazon-linux)
@@ -276,7 +276,11 @@ Configure Redis to set a client name and password for enhanced security and iden
    ```
    requirepass your_redis_password
    ```
-   Replace `your_redis_password` with a strong password.
+   Replace `your_redis_password` with a strong, unique password. This password is required for all client connections to authenticate with the Redis server, enhancing security by preventing unauthorized access. A strong password should be at least 12 characters long, including a mix of letters, numbers, and special characters. Avoid using easily guessable passwords like `password` or `redis`.
+
+   **Important Notes**:
+   - Store the password securely (e.g., in a secrets manager or environment variables) and avoid exposing it in logs or version control.
+   - If you change the password later, ensure all client applications (e.g., your Java app using Redisson) are updated with the new password to avoid connection issues.
 
 3. **Set Client Name (Optional)**:
    Redis does not have a direct "client name" setting in the configuration file, but you can identify clients by setting a name in the client application (e.g., Redisson in your Java application) or by using the `CLIENT SETNAME` command during a session. For example, in `redis6-cli`:
@@ -293,13 +297,24 @@ Configure Redis to set a client name and password for enhanced security and iden
    ```
    This shows the client name (`name=my_app_client`) in the output.
 
-   For persistent client naming, configure it in your application (e.g., Redisson, as shown later).
+   **Why Set a Client Name?**
+   - Setting a client name helps identify connections in the `CLIENT LIST` output, which is useful for debugging or monitoring active connections.
+   - For persistent client naming, configure it in your application (e.g., Redisson, as shown later). For example, in Redisson, you can set the client name programmatically in the configuration:
+     ```java
+     Config config = new Config();
+     config.useSingleServer()
+           .setAddress("redis://127.0.0.1:6379")
+           .setPassword("your_redis_password")
+           .setClientName("my_app_client");
+     ```
 
 4. **Apply Changes**:
    Restart Redis to apply the configuration:
    ```bash
    sudo systemctl restart redis6
    ```
+
+   **Note**: Restarting Redis will temporarily disconnect any active clients. Plan this during a maintenance window if your application is in production.
 
 #### 1.5 Verify Installation and Configuration
 Check the Redis version:
@@ -314,8 +329,19 @@ redis6-cli -a your_redis_password ping
 ```
 Output: `PONG`
 
+If the password is incorrect or not provided, you’ll see an error like:
+```
+(error) NOAUTH Authentication required.
+```
+In this case, ensure the correct password is used.
+
 Verify client name (if set in CLI):
 ```bash
 redis6-cli -a your_redis_password
 CLIENT LIST
 ```
+
+**Troubleshooting Tips**:
+- If you encounter connection issues, check the Redis logs (typically at `/var/log/redis6/redis6.log`) for errors.
+- Ensure the Redis port (default: 6379) is open in your firewall or security group settings if connecting remotely.
+- If using a client library like Redisson, verify that the password and client name are correctly configured in the application.
