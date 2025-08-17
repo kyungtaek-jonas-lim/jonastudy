@@ -13,6 +13,12 @@
 - Korean/English Description
 - Created at 2024.04.23
 
+## AI
+- Concept
+    - [AI Concept Basic](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/ai/concept/ai_concept_basic.md)
+- Reference
+    - [Jupyter Notebook](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/ai/reference/jupyter_notebook.md)
+
 ## CLI
 - [Linux](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/linux_cli.txt)
 - [Docker](https://github.com/kyungtaek-jonas-lim/jonastudy/blob/main/cli/docker_cli.txt)
