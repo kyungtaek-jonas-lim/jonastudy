@@ -166,9 +166,9 @@
     - General notation for a function mapping input `x` to output.
     - `h(x)` = hypothesis  
     - Used in machine learning to represent the model we are training as a "prediction function".
-        **Compatibility Note:**  
-        - `f(x)` and `h(x)` are almost interchangeable in Linear Regression.  
-        - The difference is mostly notational: `h(x)` emphasizes that it is a hypothesis being learned, while `f(x)` emphasizes a general function.
+        - **Compatibility Note:**  
+            - `f(x)` and `h(x)` are almost interchangeable in Linear Regression.  
+            - The difference is mostly notational: `h(x)` emphasizes that it is a hypothesis being learned, while `f(x)` emphasizes a general function.
 - `f_{w,b}(x) = w x + b` (model function, simply `f(x) = w x + b` or `h(x) = w x + b`  
   (*all represent the same linear regression model*))
     - `f_{w,b}(x)` = explicit model with parameters
