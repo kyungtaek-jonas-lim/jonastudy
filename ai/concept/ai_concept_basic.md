@@ -181,7 +181,17 @@
 
 ### 2. Cost Function (Squared Error Cost Function)
 
-- Most commonly used in Linear Regression.
+> A function that measures how wrong the model is across the entire dataset.
+
+- Predicted value: $\hat{y}$ (y-hat)
+
+- Actual value: $y$
+
+- Error: $\hat{y} - y$
+
+- Cost Function: A single number that represents how wrong the model is across all training data.
+
+- The most commonly used in Linear Regression: Squared Error Cost Function
 
 - Formula:
 
@@ -189,13 +199,17 @@
   J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})^2
   $$
 
+  $$
+  J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w, b}(x^{(i)}) - y^{(i)})^2
+  $$
+
 - **Explanation**:
 
-  - \$m\$: number of training examples
-  - \$\hat{y}^{(i)}\$: predicted value
-  - \$y^{(i)}\$: actual value
-  - Goal: Find \$w\$ and \$b\$ such that \$\hat{y}^{(i)}\$ is as close as possible to \$y^{(i)}\$ for all training data.
-  - \$w\$ and \$b\$ are parameters of the model, adjusted as the model learns from the data. They’re also referred to as “coefficients” or “weights”
+  - $m$: number of training examples
+  - $\hat{y}^{(i)}$: predicted value
+  - $y^{(i)}$: actual value
+  - Goal / Purpose: Find $w$ and $b$ such that $\hat{y}^{(i)}$ is as close as possible to $y^{(i)}$ for all training data. In other words, minimize $J(w, b)$ by adjusting $w$ and $b$ → so that predicted values are as close as possible to actual values.
+  - $w$ and $b$ are parameters of the model, adjusted as the model learns from the data. They’re also referred to as “coefficients” or “weights”.
 
 
 ---
