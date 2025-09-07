@@ -3,6 +3,20 @@
 ## Machine Learning
 - In general, the more options you give a learning algorithm to learn, the better it will perform.
 
+## Index
+1. [Machine Learning Algorithm](#machine-learning-algorithm)
+    1. [Supervised Learning](#1-supervised-learning)
+    2. [Unsupervised Learning](#2-unsupervised-learning)
+    3. [Supervised Learning vs Unsupervised Learning](#comparison-supervised-learning-vs-unsupervised-learning)
+2. [Regression Algorithms](#regression-algorithms)
+    1. [Linear Regression](#1-linear-regression)
+    2. [Polynomial Regression](#2-polynomial-regression)
+3. [Evaluation Metric (Performance Metric)](#evaluation-metric-cost-function-for-linear-regression)
+    1. [Hypothesis function](#1-hypothesis-function)
+    2. [Cost Function (Squared Error Cost Function)](#2-cost-function-squared-error-cost-function)
+
+100. [Terminology](#terminology)
+
 
 ## Machine Learning Algorithm
 > Knowing Machine Learning Algorithms is important but what's more important is to know how to use them.
@@ -130,25 +144,58 @@
 
 ## Regression Algorithms
 
-### Linear Regression
+### 1. Linear Regression
 - **Definition**: A method to model the relationship between input variables (x) and a continuous output (y) using ***<u>a straight line</u>***.
 - **Use cases**: House price prediction, salary prediction.
 - **Types**
    1. **Single-variable Linear Regression (Simple Linear Regression / Univariate Linear Regression)**
         - **Input**: Only one input variable `x`
-        - **Equation**: y = wx + b
+        - **Equation**: `y = wx + b`
         - **Example**: Predicting house price based on house size
     2. **Multi-variable Linear Regression (Multiple Linear Regression)**
         - **Input**: Multiple input variables (`x₁, x₂, …, xₙ`)
-        - **Equation**: y = w₁x₁ + w₂x₂ + … + wₙxₙ + b
+        - **Equation**: `y = w₁x₁ + w₂x₂ + … + wₙxₙ + b`
         - **Example**: Predicting house price based on house size, number of rooms, and location
 
 
-### Polynomial Regression
+### 2. Polynomial Regression
 - **Definition**: An extension of linear regression where the relationship between x and y is modeled as an ***<u>nth-degree polynomial</u>***.
 - **Use cases**: Growth curves, non-linear trends.
 - **Equation**: y = w₀ + w₁x + w₂x² + … + wₙxⁿ
 
+
+---
+
+## Evaluation Metric (Cost Function for Linear Regression)
+
+- **Definition**: A mathematical function that measures how well the model’s predictions match the actual values.
+- **Why it matters**: It provides a target to minimize during training (optimization).
+
+### 1. Hypothesis function
+
+- Prediction formula:
+
+  $$
+  \hat{y}^{(i)} = f_{w, b}(x^{(i)}) = wx^{(i)} + b
+  $$
+
+### 2. Cost Function (Squared Error Cost Function)
+
+- Most commonly used in Linear Regression.
+
+- Formula:
+
+  $$
+  J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} (\hat{y}^{(i)} - y^{(i)})^2
+  $$
+
+- **Explanation**:
+
+  - \$m\$: number of training examples
+  - \$\hat{y}^{(i)}\$: predicted value
+  - \$y^{(i)}\$: actual value
+  - Goal: Find \$w\$ and \$b\$ such that \$\hat{y}^{(i)}\$ is as close as possible to \$y^{(i)}\$ for all training data.
+  - \$w\$ and \$b\$ are parameters of the model, adjusted as the model learns from the data. They’re also referred to as “coefficients” or “weights”
 
 
 ---
