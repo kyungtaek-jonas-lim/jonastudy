@@ -269,8 +269,8 @@
                 - $J(-0.5) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2 = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2 = \frac{1}{2 * 3}((-0.5-1)^2 + (-1-2)^2 + (-1.5-3)^2) \approx 5.25$
 
         - Graphs looks like:
-            - ![F_{w}(x) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/ai/concept/ai_cost_function_intuition_fwx_wx_graph.png)
-            - ![F(w) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/ai/concept/ai_cost_function_intuition_fw_w_graph.png)
+            - ![F_{w}(x) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intuition_fwx_wx_graph.png)
+            - ![F(w) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intuition_fw_w_graph.png)
         - Choose $w$ to minimize $J(w)$ => $\min_{w}J(w)$ => $w = 1$
             - More general case: $\min_{w,b}J(w,b)$
 
