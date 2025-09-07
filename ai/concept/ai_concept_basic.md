@@ -14,6 +14,7 @@
 3. [Evaluation Metric (Performance Metric)](#evaluation-metric-cost-function-for-linear-regression)
     1. [Hypothesis function](#1-hypothesis-function)
     2. [Cost Function (Squared Error Cost Function)](#2-cost-function-squared-error-cost-function)
+    3. [Cost Function Intuition](#3-cost-function-intuition)
 
 100. [Terminology](#terminology)
 
@@ -211,6 +212,67 @@
   - Goal / Purpose: Find $w$ and $b$ such that $\hat{y}^{(i)}$ is as close as possible to $y^{(i)}$ for all training data. In other words, minimize $J(w, b)$ by adjusting $w$ and $b$ → so that predicted values are as close as possible to actual values.
   - $w$ and $b$ are parameters of the model, adjusted as the model learns from the data. They’re also referred to as “coefficients” or “weights”.
 
+### 3. Cost Function Intuition
+> When the cost is relatively small, close to zero, it means the model fits the data better than with other choices of $w$ and $b$. Since $J(w, b) \geq 0$, the minimum possible value of the cost function is 0, which occurs only when the predictions perfectly match the actual values.
+
+- Normal:
+    - Model: $f_{w,b}(x) = wx + b$
+    - Parameters: $w, b$
+    - Cost Function: $J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w, b}(x^{(i)}) - y^{(i)})^2$
+    - Goal: $\min_{w,b} J(w, b)$
+- Simplified:
+    - Model: $f_{w}(x) = wx$ (b = 0)
+    - Parameters: $w$
+    - Cost Function:
+        - $J(w) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2$
+        - $J(w) = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2$
+    - Goal: $\min_{w} J(w)$
+
+- Simplified Cost Function
+    - $f_{w}(x)$ Graph
+        - horizontal axis: $x$, vertical axis: $y$
+        - for fixed $w$, function of $x$
+    - $J(w)$ Graph
+        - horizontal axis: $w$, vertical axis: $J(w)$
+        - function of $w$ => parameter
+    - Example (<u>The answer is right when $w = 1$ and $b = 0$.</u>)
+        - $m = 3$, $w = 1$
+            - $f_{w}(x) = \hat{y}$
+                - $f_{1}(1) = 1$
+                - $f_{1}(2) = 2$
+                - $f_{1}(3) = 3$
+            - $J(w)$
+                - $J(1) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2 = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2 = \frac{1}{2 * 3}(0^2 + 0^2 + 0^2) = 0$
+
+        - $m = 3$, $w = 0.5$
+            - $f_{w}(x) = \hat{y}$
+                - $f_{0.5}(1) = 0.5$
+                - $f_{0.5}(2) = 1$
+                - $f_{0.5}(3) = 1.5$
+            - $J(w)$
+                - $J(0.5) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2 = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2 = \frac{1}{2 * 3}((0.5-1)^2 + (1-2)^2 + (1.5-3)^2) \approx 0.58$
+
+        - $m = 3$, $w = 0$
+            - $f_{w}(x) = \hat{y}$
+                - $f_{0}(1) = 0$
+                - $f_{0}(2) = 0$
+                - $f_{0}(3) = 0$
+            - $J(w)$
+                - $J(0) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2 = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2 = \frac{1}{2 * 3}((0-1)^2 + (0-2)^2 + (0-3)^2) \approx 2.3$
+                
+        - $m = 3$, $w = -0.5$
+            - $f_{w}(x) = \hat{y}$
+                - $f_{-0.5}(1) = -0.5$
+                - $f_{-0.5}(2) = -1$
+                - $f_{-0.5}(3) = -1.5$
+            - $J(w)$
+                - $J(-0.5) = \frac{1}{2m} \sum_{i=1}^{m} (f_{w}(x^{(i)}) - y^{(i)})^2 = \frac{1}{2m} \sum_{i=1}^{m} (wx^{(i)} - y^{(i)})^2 = \frac{1}{2 * 3}((-0.5-1)^2 + (-1-2)^2 + (-1.5-3)^2) \approx 5.25$
+
+        - Graphs looks like:
+            - ![F_{w}(x) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/ai/concept/ai_cost_function_intuition_fwx_wx_graph.png)
+            - ![F(w) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/ai/concept/ai_cost_function_intuition_fw_w_graph.png)
+        - Choose $w$ to minimize $J(w)$ => $\min_{w}J(w)$ => $w = 1$
+            - More general case: $\min_{w,b}J(w,b)$
 
 ---
 
