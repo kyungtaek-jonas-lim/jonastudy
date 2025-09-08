@@ -16,6 +16,8 @@
     1. [Hypothesis function](#1-hypothesis-function)
     2. [Cost Function (Squared Error Cost Function)](#2-cost-function-squared-error-cost-function)
     3. [Cost Function Intuition](#3-cost-function-intuition)
+4. [Gradient Descent](#gradient-descent)
+    1. [Gradient Descent Algorithm](#1-gradient-descent-algorithm)
 
 
 ## Machine Learning Algorithm
@@ -316,3 +318,92 @@
             - ![F(w) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intuition_fw_w_graph.png)
         - Choose $w$ to minimize $J(w)$ => $\min_{w}J(w)$ => $w = 1$
             - More general case: $\min_{w,b}J(w,b)$
+
+- Normal Cost Function
+    - $f_{w,b}(x)$ Graph
+        - horizontal axis: $x$
+        - vertical axis: $y$
+
+    - $J(w,b)$ Graph
+        1. 3D Graph
+            - x axis: \$w\$
+            - y axis: \$b\$
+            - z axis: \$J(w,b)\$
+            - ![3D Surface Plot of $J(w,b)$ (Cost Function Surface)](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intution_normal_cost_function_surface.png)
+
+        2. 2D Graph (Contour Plot)
+            - Represent equal values of \$J\$ with contour lines
+            - Plot in 2D with axes \$w\$ and \$b\$
+            - ![Contour Plot of $J(w,b)$ (Cost Function Contour)](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intution_normal_cost_function_contour.png)
+
+        3. 3D Graph with Lines
+            - Draw straight lines on the \$J(w,b)\$ surface for different \$(w,b)\$ values
+            - Multiple lines illustrate how \$J\$ varies with those parameters
+            - ![Gradient Descent Path on Cost Surface (Optimization Paths on $J(w,b)$ Surface)](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intution_normal_gradient_descent_paths_on_cost_surface.png)
+
+    - Minimum: the lowest point of the surface, where predictions fit the data best.
+
+    - Example (<u>The answer is right when $w = 0.13$ and $b = 71$.</u>)
+        - $w = -0.15$, $b = 800$
+        - $w = 0$, $b = 360$
+        - $w = -0.15$, $b = 500$
+        - $w = 0.13$, $b = 71$ → Minimum cost function
+
+
+---
+
+## Gradient Descent
+> Used widely in machine learning, not only for linear regression but also for advanced neural network models (deep learning).
+
+- For linear regression or any function
+- Have some function J(w, b)
+- Goal: $\min_{w, b}J(w, b) = \min_{w1,...,w2,b}J(w_{1}, w_{2}, ..., w_{n}, b)$
+- Outline:
+    1. Start with some $w$, $b$ (e.g., $w = 0$, $b = 0$)
+    2. Keep changing $w$, $b$ to reduce $J(w,b)$
+    3. Until we settle at or near a minimum
+    - *Note: not all cost functions have a U-shape; some are non-convex.*
+    - *Note: some cost functions can have more than one minimum.*
+    - *Note: This way, you can find local minimums not the real minimums.*
+
+- Additional Information
+    - Q. Does the simple outline of Gradient Descent really find the minimum? What about local minima?
+        - If we only follow the basic outline, Gradient Descent cannot guarantee finding the true global minimum, especially in non-convex cost functions.
+        - In convex cases (like Linear Regression), Gradient Descent always reaches the global minimum.
+        - In non-convex cases (like neural networks), it may stop at local minima or saddle points.
+
+    - A.
+        - Non-convex \$J(w,b)\$ (Beyond Linear Regression)
+            - Some cost functions are **non-convex** (e.g., neural networks).
+            - Shape: multiple peaks and valleys.
+            - Gradient Descent may converge to a **local minimum** or a **saddle point**, not necessarily the global minimum.
+
+        - Clarification about Outline and Local Minima
+            * For convex problems (like Linear Regression), gradient descent **always finds the global minimum**.
+            * For non-convex problems, the basic outline is not enough:
+                * Gradient Descent can stop at local minima.
+                * Global minimum is not guaranteed.
+            * **Summary**:
+                * Convex → safe, global minimum found
+                * Non-convex → risk of local minima, depends on initialization and optimization tricks
+
+        - **Convex function**:
+            > A bowl-shaped function with only **one global minimum**. Example: Linear Regression cost function \$J(w,b)\$.
+
+        - **Non-convex function**:
+            > A function with **multiple valleys and peaks** (like a mountain range). It can have many **local minima** and **saddle points**.
+            - Gradient Descent may stop at a local minimum instead of the global minimum.
+            - Common in **neural networks and deep learning models**.
+
+        - **Convex vs Non-convex**
+            | Feature              | Convex Function                            | Non-convex Function                                                    |
+            | -------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+            | **Shape**            | Bowl-shaped, smooth surface                | Mountain-range-like, with multiple valleys and peaks                   |
+            | **Global Minimum**   | Only one global minimum                    | May have multiple local minima; global minimum exists but hard to find |
+            | **Gradient Descent** | Always converges to the global minimum     | May converge to a local minimum or saddle point                        |
+            | **Example**          | Linear Regression cost function \$J(w,b)\$ | Neural networks, deep learning cost functions                          |
+            | **Difficulty**       | Easy optimization                          | Hard optimization, depends on initialization and algorithm choices     |
+
+
+### 1. Gradient Descent Algorithm
+$w := w - \alpha \, \frac{\partial J(w, b)}{\partial w}$
