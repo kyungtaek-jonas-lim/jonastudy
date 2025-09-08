@@ -11,12 +11,11 @@
 2. [Regression Algorithms](#regression-algorithms)
     1. [Linear Regression](#1-linear-regression)
     2. [Polynomial Regression](#2-polynomial-regression)
+    3. [Terminology](#3-terminology)
 3. [Evaluation Metric (Performance Metric)](#evaluation-metric-cost-function-for-linear-regression)
     1. [Hypothesis function](#1-hypothesis-function)
     2. [Cost Function (Squared Error Cost Function)](#2-cost-function-squared-error-cost-function)
     3. [Cost Function Intuition](#3-cost-function-intuition)
-
-100. [Terminology](#terminology)
 
 
 ## Machine Learning Algorithm
@@ -165,6 +164,50 @@
 - **Equation**: y = w₀ + w₁x + w₂x² + … + wₙxⁿ
 
 
+### 3. Terminology
+- `Training set (X, Y)`: Dataset used to train the model, represented as input-output pairs
+    - `X` = input features
+    - `Y` = output targets
+    - Not used directly for a single prediction, but part of the training data
+- `x`: Input variable / Input feature (can be a single value or a vector of features)
+    - Observed data / input feature fed into the model
+    - The model uses `x` to make predictions $f_{w,b}(x)$
+- `w`
+    - Model parameter (weight) learned during training
+    - Not an input, but a value the model finds to fit the data
+- `b`
+    - Model parameter (bias) learned during training
+    - Not an input, but a value the model finds to fit the data
+- `y`: Output variable / Target variable / Output Targets
+- `m`: Number of training examples
+- `(x, y)`: A single training example (e.g., (x=1, y=50))
+- `(x^(i), y^(i))`: The i-th training example (e.g., (x^(1), y^(1)))
+    - *Note: The superscript (i) is an index, not an exponent (x^(2) ≠ x²).*
+- `f`: Function / Hypothesis / Model (maps input `x` to predicted output `ŷ`)
+    - `f(x)` = function / model  
+    - General notation for a function mapping input `x` to output.
+    - `h(x)` = hypothesis  
+    - Used in machine learning to represent the model we are training as a "prediction function".
+        - **Compatibility Note:**  
+            - `f(x)` and `h(x)` are almost interchangeable in Linear Regression.  
+            - The difference is mostly notational: `h(x)` emphasizes that it is a hypothesis being learned, while `f(x)` emphasizes a general function.
+- `f_{w,b}(x) = w x + b` (model function, simply `f(x) = w x + b` or `h(x) = w x + b`  
+  (*all represent the same linear regression model*))
+    > Linear regression model expressed as $f_{w,b}(x) = wx + b$
+    - `f_{w,b}(x)` = explicit model with parameters
+    - `f(x)` = general function
+    - `h(x)` = hypothesis / model during training
+    - In practice, `f(x)` ≈ `h(x)`; `f_{w,b}(x)` is just a concrete example with parameters.
+- `ŷ (y_hat)`: Predicted output calculated by the model. The goal of training is to make `ŷ` as close as possible to `y`.
+    - *Note: y vs ŷ (y-hat)*
+        - `y` = Actual output / target variable / target value (ground truth), the true value we want to predict.
+        - `ŷ` (y-hat) = Predicted output from the model (`f(x)` or `h(x)`)
+        - Key point:
+            - During training, `ŷ` may not equal `y`
+            - Loss is calculated as the difference between `y` and `ŷ` to improve the model
+            - During inference, `ŷ` is treated as the model's predicted result, which we use for decision-making
+
+
 ---
 
 ## Evaluation Metric (Cost Function for Linear Regression)
@@ -230,11 +273,11 @@
 
 - Simplified Cost Function
     - $f_{w}(x)$ Graph
-        - horizontal axis: $x$, vertical axis: $y$
-        - for fixed $w$, function of $x$
+        - horizontal axis: $x$
+        - vertical axis: $y$
     - $J(w)$ Graph
-        - horizontal axis: $w$, vertical axis: $J(w)$
-        - function of $w$ => parameter
+        - horizontal axis: $w$
+        - vertical axis: $J(w)$
     - Example (<u>The answer is right when $w = 1$ and $b = 0$.</u>)
         - $m = 3$, $w = 1$
             - $f_{w}(x) = \hat{y}$
@@ -273,36 +316,3 @@
             - ![F(w) Graph](https://raw.githubusercontent.com/kyungtaek-jonas-lim/jonastudy/main/ai/concept/ai_cost_function_intuition_fw_w_graph.png)
         - Choose $w$ to minimize $J(w)$ => $\min_{w}J(w)$ => $w = 1$
             - More general case: $\min_{w,b}J(w,b)$
-
----
-
-## Terminology
-- `Training set`: Dataset used to train the model
-- `x`: Input variable / Input feature (can be a single value or a vector of features)
-- `y`: Output variable / Target variable / Output Targets
-- `m`: Number of training examples
-- `(x, y)`: A single training example (e.g., (x=1, y=50))
-- `(x^(i), y^(i))`: The i-th training example (e.g., (x^(1), y^(1)))
-    - *Note: The superscript (i) is an index, not an exponent (x^(2) ≠ x²).*
-- `f`: Function / Hypothesis / Model (maps input `x` to predicted output `ŷ`)
-    - `f(x)` = function / model  
-    - General notation for a function mapping input `x` to output.
-    - `h(x)` = hypothesis  
-    - Used in machine learning to represent the model we are training as a "prediction function".
-        - **Compatibility Note:**  
-            - `f(x)` and `h(x)` are almost interchangeable in Linear Regression.  
-            - The difference is mostly notational: `h(x)` emphasizes that it is a hypothesis being learned, while `f(x)` emphasizes a general function.
-- `f_{w,b}(x) = w x + b` (model function, simply `f(x) = w x + b` or `h(x) = w x + b`  
-  (*all represent the same linear regression model*))
-    - `f_{w,b}(x)` = explicit model with parameters
-    - `f(x)` = general function
-    - `h(x)` = hypothesis / model during training
-    - In practice, `f(x)` ≈ `h(x)`; `f_{w,b}(x)` is just a concrete example with parameters.
-- `ŷ (y_hat)`: Predicted output calculated by the model. The goal of training is to make `ŷ` as close as possible to `y`.
-    - *Note: y vs ŷ (y-hat)*
-        - `y` = Actual output / target variable / target value (ground truth), the true value we want to predict.
-        - `ŷ` (y-hat) = Predicted output from the model (`f(x)` or `h(x)`)
-        - Key point:
-            - During training, `ŷ` may not equal `y`
-            - Loss is calculated as the difference between `y` and `ŷ` to improve the model
-            - During inference, `ŷ` is treated as the model's predicted result, which we use for decision-making
